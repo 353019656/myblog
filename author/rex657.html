@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+Design by Free CSS Templates
+http://www.freecsstemplates.org
+Released for free under a Creative Commons Attribution 2.5 License
+
+Name       : Brown Stone  
+Description: A two-column, fixed-width design with dark color scheme.
+Version    : 1.0
+Released   : 20100928
+
+-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Rex657's Blog - Articles by Rex657</title>
+<link href="https://rex657.github.io/theme/css/style.css" rel="stylesheet" type="text/css" media="screen" />
+<link href="https://rex657.github.io/" type="application/atom+xml" rel="alternate" title="Rex657's Blog ATOM Feed" />
+</head>
+<body>
+<div id="wrapper">
+	<div id="page">
+		<div id="page-bgtop">
+			<div id="page-bgbtm">
+ 
+        
+				<div id="content">
+					<div class="post">
+						<h2 class="title"><a href="https://rex657.github.io/tutorial-on-building-your-static-blog.html">Tutorial On Building Your Static Blog</a></h2>
+						<p class="meta"><span class="date">Date: 周三, 29 四月 2020 </span><span class="posted">Author: <a href="#">Rex657</a></span><span>&nbsp; | Category : <a href="https://rex657.github.io/category/tutorial.html">Tutorial</a></span></p>
+					<p class="meta">Tags : <span><a href="https://rex657.github.io/tag/python.html">Python</a> / </span>
+<span><a href="https://rex657.github.io/tag/pelican.html">Pelican</a> / </span>
+<span><a href="https://rex657.github.io/tag/typora.html">Typora</a> / </span>
+</p>
+						<div style="clear: both;">&nbsp;</div>
+						<div class="entry">
+						 <h1>使用Pelican+Typora+GitHub Page搭建静态博客</h1>
+<h2>简介</h2>
+<p>​    一直想有个平台来记录一下自己在技术学习道路上的经历和心得，刚好近期了解了一下静态博客的技术，计划以后慢慢将原来写在文档里的东西发布到博客上来。希望不要烂尾了Orz..</p>
+<p>那么首先来看一下这里提到的三个组件都是什么吧！</p>
+<h3>Pelican</h3>
+<p>首先是Pelican, pelican dev团队给这个组件提供的介绍是这样的：</p>
+<blockquote>
+<p>Pelican is a simple static blog generator. It parses markup files (Markdown or reStructuredText for now) and generates an HTML folder with all the files in it. I’ve chosen to use Python to implement Pelican because it seemed to be simple and to fit to my needs.</p>
+</blockquote>
+<p>Pelican 是一个易用的静态博客生成器，它能够将格式化的文件（一般为md文件和rst文件）很方便地转换成html文件，供网站使用。作者使用python 编写Pelican, 因为这种组合方式一方面很简单，另一方面能很好地满足作者的需求。</p>
+<p>同样和Pelican功能类似的组件有Node.js提供的Hexo, Go编写的Hugo, Gridea(<strong>https://gridea.dev/</strong>)写作客户端，如果以后有机会可以再写一些东西来介绍相关的技术。这里我们先使用Pelican来开始我们的静态博客搭建吧。</p>
+<h3>Typora</h3>
+<p>我所在的技术团队18年就开始推广使用typora这个文本编辑器了，但是之前一直用它来编写一些教程，并没有和博客啊，网络发布啊什么的结合起来，在阅读其他教程的时候突然发现这个不就是用markdown写的么，typora不就是markdown编辑器么，于是又把typora下载回来，开始写自己的博客了。</p>
+<p>Typora本身也具有很高的易用性，就如同vim之于Linux，notepad++之于txt文件，用来编写Markdown正好不过。</p>
+<h3>GitHub Page</h3>
+<p>​    在搜索合适的博客平台时，偶然找到一篇知乎提问，标题是：</p>
+<blockquote>
+<p>https://www.zhihu.com/question/20717014  --使用 GitHub Pages 来做博客是否道德？</p>
+</blockquote>
+<p>看得我心一跳，赶紧看是否自己触及了谁的道德底线，看了回答以后才决定不如就用这个了，多少有点<strong>富贵险中求</strong>的意思。</p>
+<p>另外GitHub Page也有一些来自官方的限制：</p>
+<blockquote>
+<p>GitHub Pages sites are subject to the following usage limits:</p>
+<ul>
+<li>GitHub Pages source repositories have a recommended limit of 1GB. For more information, see "<a href="https://help.github.com/en/articles/what-is-my-disk-quota/#file-and-repository-size-limitations">What is my disk quota?"</a></li>
+<li>Published GitHub Pages sites may be no larger than 1 GB.</li>
+<li>GitHub Pages sites have a <em>soft</em> bandwidth limit of 100GB per month.</li>
+<li>GitHub Pages sites have a <em>soft</em> limit of 10 builds per hour.</li>
+</ul>
+</blockquote>
+<ol>
+<li>你的repo不能超过1G</li>
+<li>Page也不能超过1G</li>
+<li>Page每月流量不能超过100G</li>
+<li>Page每小时更新提交的版本数不要超过10次   #更新狂魔？</li>
+</ol>
+<p>如果上述限制对你的需求并不产生冲突的话，就可以开始使用了。</p>
+<h2>开始搭建</h2>
+<p>要使用这些组件来建立博客页面，你至少需要：</p>
+<p>--Python 3.7.7 （为了和我另一台PC的版本同步，用了python3，python2在部署的时候请注意命令是否兼容）</p>
+<p>--Typora</p>
+<p>--Pelican组件   </p>
+<p>--一个GitHub 账号</p>
+<p>--Git Bash （也可以使用Git Desktop）</p>
+<p>我们稍后将从创建page开始，到安装Pelican，最后是编写内容并上传。提示一下，GitHub Page因为是静态的页面，所以<strong>没有comment</strong>的支持，国内网络也访问不到Disqus(至少我现在是不行)，另外静态网页的意思是，你得<strong>每次本地编写好了以后再更新到Page上</strong>。这一点如果你不太爱折腾，可以先停一下了，如果不，那继续往下看怎么进行具体的操作吧。</p>
+<h4>创建Git 账号</h4>
+<p>前往<strong>世界上最大的男性同性交友平台</strong>GitHub建立一个账号，完了建一个repository用于存放blog。</p>
+<p>登录完成后点击右上角的+号</p>
+<p><img src= "images/new_repo.PNG" width = 40% height = 30% /></p>
+<p>填入信息创建repo</p>
+<p><img src= "images/create.png" width= 80%/></p>
+<p>最好是在项目的settings里打开enforced https, 即强制使用https协议，并且如果你拥有一个域名的话，你可以将你建立的page地址指向你的一个子域名，实现更自定义化的page名称。</p>
+<p>Page建立好以后，我们可以使用git bash将page项目下载到本地。</p>
+<p><code>git clone https://github.com/Your_username/Your_reponame</code></p>
+<p>如果命令行提示找不到资源项目，请确认地址信息是否正确。</p>
+<h4>安装Pelican</h4>
+<p><code>pip install pelican Markdown</code></p>
+<p>官方文档推荐在虚拟环境下安装，因为考虑到pelican可能会和其他库产生冲突，这里我采用的直接安装的方式。</p>
+<p>pelican安装完成后可以使用pelican-quickstart来快速部署需要的文件，这个工具会采用选择的方式提供一些基本的配置指导, 可以一路使用默认选项，之后手动修改配置文件。</p>
+<p>--quickstart默认使用欧洲/巴黎时区， 需要在pelicanconf.py中修改TIMEZONE = 'UTC'</p>
+<p>--第一步选择文件路径的时候如果使用的默认.（当前路径）路径，你可以在这里找到如下文件</p>
+<p><img src= "images/file.png" width = 20% height = 20%/></p>
+<h4>写一个博客</h4>
+<p>打开Typora, 输入下列内容</p>
+<div class="highlight"><pre><span></span><code><span class="n">Title</span><span class="o">:</span> <span class="n">My</span> <span class="n">first</span> <span class="n">blog</span>
+<span class="n">Category</span><span class="o">:</span> <span class="n">test</span>
+<span class="n">Date</span><span class="o">:</span>  <span class="mi">2020</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">29</span> <span class="mi">10</span><span class="o">:</span><span class="mi">28</span>
+<span class="n">Tags</span><span class="o">:</span> <span class="n">pelican</span><span class="o">,</span> <span class="n">publishing</span>
+<span class="n">Authors</span><span class="o">:</span> <span class="n">rex657</span>
+
+<span class="n">what</span> <span class="n">to</span> <span class="n">write</span> <span class="n">here</span><span class="o">?</span>
+</code></pre></div>
+
+
+<p>然后将文件保存到你刚刚打开的pelican项目的content路径下。使用pelican生成所需的html文件。</p>
+<p><code>pelican /path/to/your/content</code></p>
+<p>我在执行的过程中遇到了 pelican 找不到data内容报错退出的情况，建立markdown文件的时候注意内容之间不要有空格。另外，pelican会在你执行命令的当前目录生成output，所以注意每次执行命令的时候尽量使用在一个路径，不然可能你会发现项目文件夹下到处都是output...</p>
+<p>执行完成后，你就可以到output目录下找到生成的html文件了，要在发布前检查内容，可以在该目录下执行</p>
+<p><code>python -m http.server</code>   或者  <code>pelican --listen</code></p>
+<p>我在执行后者的情况下，无法通过Ctrl+C退出，因为对这个组件还不是特别熟悉。一旦上面的命令运行成功，你就可以使用浏览器打开<em>http://localhost:8000</em>访问到你的测试网站了。</p>
+<p><img src= "images/page.PNG" width = 80%/></p>
+<p>当当当当！我们的测试页面就完成了，我们可以考虑调整一下默认的界面模板。</p>
+<blockquote>
+<p>http://www.pelicanthemes.com/  --这里是各种模板的预览地址，可以挑一个自己喜欢的主题</p>
+</blockquote>
+<p>看中主题后，使用git bash下载主题项目，命令会把pelican所有主题都下载到本地。感谢全球的pelican使用者，我们现在可以选择的主题数量多达1000多个。</p>
+<blockquote>
+<p>git clone --recursive https://github.com/getpelican/pelican-themes ~/pelican-themes</p>
+</blockquote>
+<p>下载好主题后，可以在pelicanconf.py文件内指定主题，添加如下内容：</p>
+<p><code>THEME = "/home/user/pelican-themes/theme-name"</code></p>
+<p>调整完主题后，你需要重新生成一下网页，以让效果显现出来。</p>
+<p>最后调整完毕后，我们就可以把网页上传到我们的GitHub Page中去了</p>
+<p><code>cd ./output</code></p>
+<p><code>git init</code></p>
+<p><code>git add .</code></p>
+<p><code>git commit -m $1</code></p>
+<p><code>git pull origin master</code>  </p>
+<p><code>git push origin master</code></p>
+<p>然后就可以通过先前配置的GitHub Page来访问到我们的第一篇博客了。</p>
+<h3>Reference</h3>
+<blockquote>
+<p>https://sspai.com/post/54608 --GitHub Pages 搭建教程</p>
+<p>https://maxwell-nc.github.io/blog/pelicanBuildBlog.html  --Windows下使用Pelican搭建静态博客</p>
+</blockquote>	
+						</div>
+					</div>
+					<div style="clear: both;">&nbsp;</div>
+				</div>
+				<div id="sidebar">
+					<div id="logo">
+						<h1><a href="https://rex657.github.io">Rex657's Blog</a></h1>
+					</div>
+					<div id="menu">
+						<ul>
+							<li ><a href="https://rex657.github.io">Home</a></li>
+							<li ><a href="https://rex657.github.io/archives.html">Archives</a></li>
+						</ul>
+					</div>
+					<ul>
+						<li>
+							<h2>Category</h2>
+							<ul>
+								 <li ><a href="https://rex657.github.io/category/tutorial.html">Tutorial</a></li>
+							</ul>
+						</li>
+						<li>
+							<h2>Blogroll</h2>
+							<ul>
+                                                            <li><a href="https://docs.getpelican.com">Pelican Docs</a></li>
+                                                            <li><a href="http://python.org/">Python.org</a></li>
+							</ul>
+						</li>
+                                                <li>
+                                                        <h2>Social</h2>
+                                                        <ul>
+                                                            <li><a href="#">Wechat: WTF353019656</a></li>
+                                                            <li><a href="https://rex657.giuhub.io">GitHub</a></li>
+                                                        </ul>
+                                                </li><!-- /.social -->
+						<li>
+						        <h2>Tags</h2>
+						        <ul>
+                                                                <li><a href="https://rex657.github.io/tag/python.html">Python</a></li>
+                                                                <li><a href="https://rex657.github.io/tag/pelican.html">Pelican</a></li>
+                                                                <li><a href="https://rex657.github.io/tag/typora.html">Typora</a></li>
+						        </ul>
+						</li>
+						
+						
+					</ul>
+				</div>
+				<!-- end #sidebar -->
+				<div style="clear: both;">&nbsp;</div>
+			</div>
+		</div>
+	</div>
+	<!-- end #page -->
+
+<div id="footer">
+	<p>Copyright (c) 2008 Sitename.com. All rights reserved. Design by <a href="http://www.freecsstemplates.org/">CSS Templates</a>.</p>
+	<p>Proudly powered by <a href="http://alexis.notmyidea.org/pelican/">pelican</a>, which takes great advantages of <a href="http://python.org">python</a>.
+</p>
+</div>
+<!-- end #footer -->
+</body>
+</html>
