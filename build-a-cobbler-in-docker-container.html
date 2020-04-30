@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Rex657's Blog</title>
+	<meta name="description" content="">
+	<meta name="author" content="rex657">
+
+	<!-- HTML5 shim, for IE6-8 support of HTML elements -->
+	<!--[if lt IE 9]>
+		<script src="https://rex657.github.io/blog/theme/html5.js"></script>
+	<![endif]-->
+
+	<!-- Styles -->
+	<link href="https://rex657.github.io/blog/theme/bootstrap.min.css" rel="stylesheet">
+	<link href="https://rex657.github.io/blog/theme/local.css" rel="stylesheet">
+	<link href="https://rex657.github.io/blog/theme/pygments.css" rel="stylesheet">
+
+	<!-- Feeds -->
+
+
+
+
+</head>
+<body>
+	<div class="topbar">
+	  <div class="topbar-inner">
+		<div class="container-fluid">
+		  <a class="brand" href="https://rex657.github.io/blog/">Rex657's Blog</a>
+			<ul class="nav">
+					<li class="active"><a href="https://rex657.github.io/blog/category/tutorial.html">Tutorial</a></li>
+			</ul>
+			<p class="pull-right"><a href="https://rex657.github.io/blog/archives.html">[archives]</a> <a href="https://rex657.github.io/blog/tags.html">[tags]</a></p>
+		</div>
+	  </div>
+	</div>
+
+	<div class="container-fluid">
+	  <div class="sidebar">
+		<div class="well">
+			<h3>Blogroll</h3>
+			<ul>
+				<li><a href="https://docs.getpelican.com">Pelican Docs</a></li>
+				<li><a href="http://python.org/">Python.org</a></li>
+			</ul>
+			<div class="social">
+			<h3>Social</h3>
+			<ul>
+				<li><a href="#">Wechat: WTF353019656</a></li>
+				<li><a href="https://rex657.giuhub.io">GitHub</a></li>
+			</ul>
+			</div>
+		</div>
+	  </div>
+	  <div class="content">
+	<div class='article'>
+		<div class="page-header"><h1>Build a Cobbler in Docker Container</h1></div>
+		<div class="well small">Permalink: <a class="more" href="https://rex657.github.io/blog/build-a-cobbler-in-docker-container.html">2020-04-30 10:14:00+00:00</a>
+by <a class="url fn" href="https://rex657.github.io/blog/author/rex657.html">Rex657 </a>
+ in <a href="https://rex657.github.io/blog/category/tutorial.html">Tutorial</a>
+tags: <a href="https://rex657.github.io/blog/tag/docker.html">Docker</a> <a href="https://rex657.github.io/blog/tag/cobbler.html">Cobbler</a> <a href="https://rex657.github.io/blog/tag/automation.html">Automation</a> </div>
+		<div><h1>使用Docker容器部署Cobbler服务</h1>
+<h2>简介</h2>
+<p>Cobbler是基于Python语言编写的批量引导平台，其特点在于可以支持不同的系统镜像，同时基于pxe网络引导执行自动化系统安装。本文档制作意在指导操作者使用容器技术搭建易用和快速部署的Cobbler服务。
+要顺利使用此文档，请提前参阅了解docker技术，kickstart技术和PXE网络引导。
+有意思的是，百度百科将cobbler介绍为：Cobbler 可以用来快速建立 Linux 网络安装环境，它已将 Linux 网络安装的技术门槛，从大专以上文化水平，成功降低到初中以下，连补鞋匠都能学会。</p>
+<blockquote>
+<p>Note: 不过我在后期的实际使用中发现，docker容器部署的方式在没有简化image的情况下，易用性不如直接安装服务好。这里给自己留个坑，一是在此版本的部署基础上继续优化镜像大小，二是继续调整容器部署方式。</p>
+</blockquote>
+<p>其实我本人做这个事的目的是刚好练一下手，去再熟悉一下docker容器，敲定了思路以后在网上去找了一些资料，文章最后我会把参考资料也附上。</p>
+<h2>准备</h2>
+<p>首先你得先安装docker，在你本地先执行</p>
+<p><code>yum -y install epel-release vim net-tools docker</code></p>
+<p>我测试的时候使用的最小化安装所以额外还装了一些工具，主要的还是docker。</p>
+<p>安装好了以后先启动docker, 我在使用centos7.2的时候在这一步遇到了报错：</p>
+<p><code>Error starting daemon: SELinux is not supported with the overlay2 graph driver on this kernel. Either boot into a newer kernel or disable selinux in docker (--selinux-enabled=false)</code></p>
+<p>就是说你本机的SELinux和overlay2存储驱动不兼容，我这里是直接换了driver layer，换成了CentOS能支持的devicemapper</p>
+<p><code>vim /etc/sysconfyg/docker-storage</code></p>
+<p><code>DOCKER_STORAGE_OPTIONS="--storage-driver devicemapper"</code></p>
+<blockquote>
+<p>Note:  容器默认的大小为10G，所以一般不修改的情况下这个cobbler容器只能加载1-2个最小化镜像，若有超过5G的ISO文件导入，则容器会因空间不足而不支持导入操作，所以如果需要安装的ISO体量较大，可以在此处添加--storage-opt dm.basesize=40G，将容器的大小调整成40G以支持更多更大的镜像。如果在修改空间前已经启动过docker，需要rm -rf /var/lib/docker目录后重启docker以便让新配置生效。  ---所以当时的头脑一热还是给自己挖了很多坑啊...</p>
+</blockquote>
+<h3>建立镜像</h3>
+<p>dockers启动以后我们就可以开始建立镜像了。这个文档一并把建立docker镜像的步骤也包含了，所以你会在下面看到我使用的dockerfile，这个dockerfile很大程度上参考了国外一位技术人员的博文。</p>
+<div class="highlight"><pre><span></span><code><span class="k">FROM</span> <span class="s">centos:7.2.1511</span>
+
+<span class="k">MAINTAINER</span><span class="s"> rex657</span>
+
+<span class="k">RUN</span> yum -y install epel-release vim net-tools
+<span class="k">RUN</span> yum -y install httpd tftp cobbler cobbler-web dhcp xinetd syslinux pykickstart <span class="nb">bind</span> <span class="o">&amp;&amp;</span> yum clean all
+<span class="k">RUN</span> <span class="o">(</span><span class="nb">cd</span> /lib/systemd/system/sysinit.target.wants/<span class="p">;</span> <span class="k">for</span> i in *<span class="p">;</span> <span class="se">\</span>
+<span class="k">do</span> <span class="o">[</span> <span class="nv">$i</span> <span class="o">==</span> systemd-tmpfiles-setup.service <span class="o">]</span> <span class="o">||</span> rm -f <span class="nv">$i</span><span class="p">;</span> <span class="k">done</span><span class="o">)</span><span class="p">;</span> <span class="se">\</span>
+rm -f /lib/systemd/system/multi-user.target.wants/*<span class="p">;</span><span class="se">\</span>
+rm -f /etc/systemd/system/*.wants/*<span class="p">;</span><span class="se">\</span>
+rm -f /lib/systemd/system/local-fs.target.wants/*<span class="p">;</span> <span class="se">\</span>
+rm -f /lib/systemd/system/sockets.target.wants/*udev*<span class="p">;</span> <span class="se">\</span>
+rm -f /lib/systemd/system/sockets.target.wants/*initctl*<span class="p">;</span> <span class="se">\</span>
+rm -f /lib/systemd/system/basic.target.wants/*<span class="p">;</span><span class="se">\</span>
+rm -f /lib/systemd/system/anaconda.target.wants/*<span class="p">;</span>
+<span class="k">VOLUME</span> <span class="p">[</span> <span class="s2">&quot;/sys/fs/cgroup&quot;</span> <span class="p">]</span>
+
+<span class="k">RUN</span> systemctl <span class="nb">enable</span> cobblerd<span class="p">;</span>systemctl <span class="nb">enable</span> httpd<span class="p">;</span>systemctl <span class="nb">enable</span> dhcpd
+<span class="k">RUN</span> sed -i -e <span class="s1">&#39;s/\(^.*disable.*=\) yes/\1 no/&#39;</span> /etc/xinetd.d/tftp 
+<span class="k">RUN</span> touch /etc/xinetd.d/rsync 
+
+<span class="k">EXPOSE</span><span class="s"> 69</span>
+<span class="k">EXPOSE</span><span class="s"> 80</span>
+<span class="k">EXPOSE</span><span class="s"> 443</span>
+<span class="k">EXPOSE</span><span class="s"> 25151</span>
+
+<span class="k">CMD</span> <span class="p">[</span><span class="s2">&quot;/sbin/init&quot;</span><span class="p">]</span>
+</code></pre></div>
+
+
+<p>随着我后来对docker技术的理解加深，我发现使用我这个dockerfile也存在很多不足，比如直接引入了系统镜像而不是只引进必需的文件，对cobbler组件使用的其他角色没有分离，而是直接都塞到一个容器里，这些都是我以后要修正的方向。但现在让我们先用这个dockerfile直接开始部署镜像吧。</p>
+<p><code>docker build . -t cobbler:1.0</code></p>
+<blockquote>
+<p>Note: 需要注意的点</p>
+<p>1， 可能需要改一下docker的源，因为默认使用的国外源比较慢</p>
+<p>2， build的时候路径下不要有不相关的文件，因为build会把当前路径下的所有文件都加载进去，造成build很慢</p>
+</blockquote>
+<p>Build正常完成以后你应该能够使用下面的命令查看刚刚建好的镜像。</p>
+<p><code>docker images</code></p>
+<p><img src= "https://i.loli.net/2020/04/30/BXFZK1RilcCEwW3.png" alt= "docker_image" style="zoom:67%;"/></p>
+<h3>运行镜像</h3>
+<p>启动容器前我们要先修改配置文件settings和dhcp.template，下文的192.168.101.100为docker宿主机的IP地址。</p>
+<p>settings文件中需要修改的内容为：</p>
+<div class="highlight"><pre><span></span><code>server: <span class="m">192</span>.168.101.100         #cobbler的服务器地址
+
+next_server: <span class="m">192</span>.168.101.100       #tftp服务器地址
+
+manage_dhcp: <span class="m">1</span>             #dhcpg管理设置为1,启用dhcp
+</code></pre></div>
+
+
+<p>dhcp.template文件中需要修改的内容为：</p>
+<div class="highlight"><pre><span></span><code>subnet <span class="m">192</span>.168.101.0 netmask <span class="m">255</span>.255.255.0 <span class="o">{</span>        #修改网段
+
+   option routers       <span class="m">192</span>.168.101.254<span class="p">;</span>       #指定网关
+
+   option domain-name-servers <span class="m">192</span>.168.101.100<span class="p">;</span>      #指定dns
+
+   option subnet-mask     <span class="m">255</span>.255.255.0<span class="p">;</span>      #指定子网掩码
+
+   range dynamic-bootp    <span class="m">192</span>.168.101.100 <span class="m">192</span>.168.101.150<span class="p">;</span>   #指定地址池
+</code></pre></div>
+
+
+<p>修改完成后保存文件，并使用如下命令启动容器：</p>
+<div class="highlight"><pre><span></span><code>docker run <span class="se">\</span>
+-d <span class="se">\</span>
+--privileged <span class="se">\</span>
+--net host <span class="se">\</span>
+-v /sys/fs/cgroup:/sys/fs/cgroup:ro <span class="se">\</span>
+-v /etc/selinux:/etc/selinux <span class="se">\</span>
+-v /opt/settings:/etc/cobbler/settings <span class="se">\</span>
+-v /opt/dhcp.template:/etc/cobbler/dhcp.template <span class="se">\</span>
+-p <span class="m">69</span>:69 <span class="se">\</span>
+-p <span class="m">80</span>:80 <span class="se">\</span>
+-p <span class="m">443</span>:443 <span class="se">\</span>
+-p <span class="m">25151</span>:25151 <span class="se">\</span>
+--name cobbler1.0 cobbler:1.0
+</code></pre></div>
+
+
+<p>之后使用命令<code>docker ps -a</code>确认创建的容器已经正常运行</p>
+<p><img src="https://i.loli.net/2020/04/30/74Zz56e39paQcst.png" alt= "docker_run" style="zoom:80%"/></p>
+<p>打开浏览器，确认cobbler_web可以访问，地址为https://YOUR_cobbler_server/cobbler_web,  默认的登录名和密码是cobbler/cobbler</p>
+<p><img src="https://i.loli.net/2020/04/30/wUeHbfIiagNy1TM.png" alt="cobbler" style="zoom:67%;" /></p>
+<blockquote>
+<p>Note: 如遇到访问不了，进入容器看一下端口是否正常，firewalld服务是否关闭，你可以用docker exec -it cobbler1.0 /bin/bash</p>
+</blockquote>
+<p>登录后界面看起来是这样的</p>
+<p><img src="https://i.loli.net/2020/04/30/huxMtg5rH2RqOVX.png" alt="cobbler_page" style="zoom:67%;" /></p>
+<p>到这里我们的cobbler容器就正常启动并可以工作了，我们可以接下来继续往我们的cobbler服务器添加镜像。我之前尝试在添加了系统安装镜像之后打包出来一个docker镜像，后来发现镜像太大不好使用，直接违背了便携的初衷，只好作罢。</p>
+<h3>上传系统ISO镜像</h3>
+<p>这里你需要：</p>
+<blockquote>
+<p>指定并创建容器的镜像存储路径，比如我用的/opt/iso001，就需要进入容器后执行mkdir /opt/iso001，mkdir /opt/iso002（因为我有两个镜像，不同的centOS版本）</p>
+<p>宿主机创建路径并挂载镜像，我同样使用的是/opt目录，mkdir /opt/media，之后就是挂载mount /dev/cdrom /opt/media</p>
+</blockquote>
+<p>使用命令<code>docker cp /opt/media cobbler1.0:/opt/iso001</code>将本地的镜像挂载点复制到容器中，或者你也可以先挂载，在容器启动的时候再用-v把挂载点提供给container使用。添加完镜像后，我们操作cobbler加载识别我们的系统镜像。</p>
+<p><img src="https://i.loli.net/2020/04/30/PRSGeCvpWN1JfjL.png" alt="upload_iso" style="zoom:80%;" /></p>
+<p>Prefix可以根据实际系统版本调整，Arch是x86_64，Breed选择Redhat based，Path选择容器内第一个镜像文件的存储位置，配置完成后点击Run，开始导入，导入大概占用30s，根据实际镜像内容大小时间可能会有差异。可根据cobbler提供的日志来检查镜像是否成功上传。</p>
+<p><img src="https://i.loli.net/2020/04/30/IjLUGMTg5vHk4nr.png" alt="task" style="zoom:67%;" /></p>
+<p>出现如上提示说明上传完成，之后点击Configuration模块的Distros，检查刚刚上传的镜像。</p>
+<h3>开始安装操作系统</h3>
+<p>有两种安装系统的方法，一种是常规的让客户机接入cobbler所在网络，通过cobbler和DHCP进行安装，这种方式需要手动配置不同系统的KS配置文件，并且需要客户机在cobbler的系统镜像中选择需要的OS才能开始安装。另一种，也是这里要介绍的一种，是通过配置固定的System来进行全自动安装，需要提前获取每个客户机的MAC地址，并在WEB端配置。配置system的方法可以非常方便的调整hostname和IP地址，这种方式能提供更好的自动化体验，并且可以让你定制每一台设备的安装流程，缺点是获取MAC地址是个麻烦事。</p>
+<p>以虚拟机环境为例，先获取客户机的MAC地址</p>
+<p><img src="https://i.loli.net/2020/04/30/G6EMO8Vc1rqCJ7K.png" alt="mac_address" style="zoom:80%;" /></p>
+<p>回到cobbler页面中，选择Configuration-Systems，创建新系统</p>
+<p><img src="https://i.loli.net/2020/04/30/WnX5YChelIUFrRd.png" alt = "build_os1" style="zoom:67%;" /></p>
+<p>profile栏选择需要安装的操作系统，Kickstart选择该系统自定义的ks脚本</p>
+<p><img src="https://i.loli.net/2020/04/30/IYtsxRh9qflpTeM.png" alt = "build_os2" style="zoom: 80%;" /></p>
+<p>Hostname填入需要创建的hostname名称，Gateway填入网关地址</p>
+<p><img src="https://i.loli.net/2020/04/30/pPtGKENSx238LOc.png" alt="build_os3" style="zoom:80%;" /></p>
+<p>Add Interface 填入需要创建的接口名称，之后点击Add，MAC address 填入目标系统的MAC地址</p>
+<blockquote>
+<p>Note: 如果MAC和目标真实MAC能对应，则目标客户机就不需要在引导时选择操作系统，相当于一键自动化部署，但若不提供MAC，则客户机启动默认按照第一种手动选择系统的方式开始安装</p>
+</blockquote>
+<p>IP address 填入对应IP，勾选Static，Subnet Mask填入255.255.255.0，Gateway填入网关。这里实际我注意到创建interface这一步是不必要的，因为安装完成后检查客户机，自动部署并没有创建或者是重命名网卡为eth1，相反还是使用的enoXX的网卡。这里我还没有完全搞清楚。</p>
+<p>保存后就完成了目标客户机的配置模板创建，可实现该客户机的一键自动部署操作系统。</p>
+<p>若选择第一种手动确认操作系统，则客户机启动时会弹出下图所示窗口</p>
+<p><img src="https://i.loli.net/2020/04/30/IqnpMbYRNC4lzsL.png" alt="select_os" style="zoom:80%;" /></p>
+<p>移动光标选择目标操作系统后，安装将会基于配置好的ks完成自动安装</p>
+<p>下图展示了两种方案安装的操作系统差异</p>
+<p>一键自动化安装完成后IP地址和hostname都已经配置</p>
+<p><img src="https://i.loli.net/2020/04/30/UpSx4tmjov1l7uW.png" alt="with_os001" style="zoom:67%;" /></p>
+<p>手动选择操作系统的则按照默认DHCP分配的地址完成了安装</p>
+<p><img src="https://i.loli.net/2020/04/30/pMGxVPOtKNjywki.png" alt="without_os001" style="zoom:67%;" /></p>
+<h3>补充说明</h3>
+<p>以下内容针对操作过程中产生的各种问题做简要介绍：</p>
+<p>1， CentOS7.2环境下docker启动失败</p>
+<p><img src="https://i.loli.net/2020/04/30/obTvaF1zni5RP28.png" alt="docker_requirements" style="zoom:80%;" /></p>
+<p>因为centos7.2的内核不支持overlay2，我们需要选择deivcemapper来进行启动，修改方法在开头已经做了介绍</p>
+<p>2， 容器未启动</p>
+<p>可能是已经有同样名字的容器在运行，具体根据启动时的报错排查</p>
+<p>3， 容器启动成功但服务启动失败</p>
+<p>借助命令docker exec -it cobbler1.0 /bin/bash进入容器执行一系列的诊断命令判断是哪些服务启动异常，容器自带net-tools工具帮助诊断问题</p>
+<p>cobbler依赖于以下服务运行：</p>
+<p>httpd 运行在80和443端口</p>
+<p>rsyncd 运行在253端口</p>
+<p>tftp 运行在69端口</p>
+<p>cobblerd 运行在25151端口</p>
+<p>如果有服务未正常启动，需要使用systemctl命令启动服务，service命令在容器中无法正常使用。</p>
+<h3>参考资料</h3>
+<blockquote>
+<p>https://blog.container-solutions.com/cobbler-in-a-docker-container  Cobbler in a docker Container，这篇文章作者说的非常熟悉，我引用了很大一部分。</p>
+<p>https://blog.51cto.com/qingwa/2129931  用docker快速部署cobbler, 这篇文章的作者还使用了kubelet组件支持容器</p>
+</blockquote></div>
+	</div>
+		<footer>
+		  <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme based on <a href="http://twitter.github.com/bootstrap/">Twitter Bootstrap</a>.</p>
+		  <p>&copy; rex657</p>
+		</footer>
+	  </div>
+
+	</div>
+</body>
+</html>

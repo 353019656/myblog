@@ -1,41 +1,65 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<!--
-Design by Free CSS Templates
-http://www.freecsstemplates.org
-Released for free under a Creative Commons Attribution 2.5 License
-
-Name       : Brown Stone  
-Description: A two-column, fixed-width design with dark color scheme.
-Version    : 1.0
-Released   : 20100928
-
--->
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta name="keywords" content="" />
-<meta name="description" content="" />
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<title>Tutorial On Building Your Static Blog</title>
-<link href="https://rex657.github.io/blog/theme/css/style.css" rel="stylesheet" type="text/css" media="screen" />
-<link href="https://rex657.github.io/blog/" type="application/atom+xml" rel="alternate" title="Rex657's Blog ATOM Feed" />
+	<meta charset="utf-8">
+	<title>Rex657's Blog</title>
+	<meta name="description" content="">
+	<meta name="author" content="rex657">
+
+	<!-- HTML5 shim, for IE6-8 support of HTML elements -->
+	<!--[if lt IE 9]>
+		<script src="https://rex657.github.io/blog/theme/html5.js"></script>
+	<![endif]-->
+
+	<!-- Styles -->
+	<link href="https://rex657.github.io/blog/theme/bootstrap.min.css" rel="stylesheet">
+	<link href="https://rex657.github.io/blog/theme/local.css" rel="stylesheet">
+	<link href="https://rex657.github.io/blog/theme/pygments.css" rel="stylesheet">
+
+	<!-- Feeds -->
+
+
+
+
 </head>
 <body>
-<div id="wrapper">
-	<div id="page">
-		<div id="page-bgtop">
-			<div id="page-bgbtm">
-    
-                        	<div id="content">
-					<div class="post">
-						<h2 class="title"><a href="tutorial-on-building-your-static-blog.html">Tutorial On Building Your Static Blog</a></h2>
-						<p class="meta"><span class="date">Date: 周三, 29 四月 2020 </span><span class="posted">Author: <a href="#">Rex657</a></span><span>&nbsp; | Category : <a href="https://rex657.github.io/blog/category/tutorial.html">Tutorial</a></span></p>
-					<p class="meta">Tags : <span><a href="https://rex657.github.io/blog/tag/python.html">Python</a> / </span>
-<span><a href="https://rex657.github.io/blog/tag/pelican.html">Pelican</a> / </span>
-<span><a href="https://rex657.github.io/blog/tag/typora.html">Typora</a> / </span>
-</p>	
-						<div style="clear: both;">&nbsp;</div>
-						<div class="entry">
-						 <h1>使用Pelican+Typora+GitHub Page搭建静态博客</h1>
+	<div class="topbar">
+	  <div class="topbar-inner">
+		<div class="container-fluid">
+		  <a class="brand" href="https://rex657.github.io/blog/">Rex657's Blog</a>
+			<ul class="nav">
+					<li class="active"><a href="https://rex657.github.io/blog/category/tutorial.html">Tutorial</a></li>
+			</ul>
+			<p class="pull-right"><a href="https://rex657.github.io/blog/archives.html">[archives]</a> <a href="https://rex657.github.io/blog/tags.html">[tags]</a></p>
+		</div>
+	  </div>
+	</div>
+
+	<div class="container-fluid">
+	  <div class="sidebar">
+		<div class="well">
+			<h3>Blogroll</h3>
+			<ul>
+				<li><a href="https://docs.getpelican.com">Pelican Docs</a></li>
+				<li><a href="http://python.org/">Python.org</a></li>
+			</ul>
+			<div class="social">
+			<h3>Social</h3>
+			<ul>
+				<li><a href="#">Wechat: WTF353019656</a></li>
+				<li><a href="https://rex657.giuhub.io">GitHub</a></li>
+			</ul>
+			</div>
+		</div>
+	  </div>
+	  <div class="content">
+	<div class='article'>
+		<div class="page-header"><h1>Tutorial On Building Your Static Blog</h1></div>
+		<div class="well small">Permalink: <a class="more" href="https://rex657.github.io/blog/tutorial-on-building-your-static-blog.html">2020-04-29 16:14:00+00:00</a>
+by <a class="url fn" href="https://rex657.github.io/blog/author/rex657.html">Rex657 </a>
+ in <a href="https://rex657.github.io/blog/category/tutorial.html">Tutorial</a>
+tags: <a href="https://rex657.github.io/blog/tag/python.html">Python</a> <a href="https://rex657.github.io/blog/tag/pelican.html">Pelican</a> <a href="https://rex657.github.io/blog/tag/typora.html">Typora</a> </div>
+		<div><h1>使用Pelican+Typora+GitHub Page搭建静态博客</h1>
 <h2>简介</h2>
 <p>​    一直想有个平台来记录一下自己在技术学习道路上的经历和心得，刚好近期了解了一下静态博客的技术，计划以后慢慢将原来写在文档里的东西发布到博客上来。希望不要烂尾了Orz..</p>
 <p>那么首先来看一下这里提到的三个组件都是什么吧！</p>
@@ -83,9 +107,9 @@ Released   : 20100928
 <h4>创建Git 账号</h4>
 <p>前往<strong>世界上最大的男性同性交友平台</strong>GitHub建立一个账号，完了建一个repository用于存放blog。</p>
 <p>登录完成后点击右上角的+号</p>
-<p><img src= "images/new_repo.PNG" width = 40% height = 30% /></p>
+<p><img src="https://i.loli.net/2020/04/30/V9QArDRIibpKJZt.png" alt="new_repo" style="zoom:67%;" /></p>
 <p>填入信息创建repo</p>
-<p><img src= "images/create.PNG" width= 80%/></p>
+<p><img src="https://i.loli.net/2020/04/30/JMGnE8kBqV2FKeP.png" alt="create_repo" style="zoom:67%;" /></p>
 <p>最好是在项目的settings里打开enforced https, 即强制使用https协议，并且如果你拥有一个域名的话，你可以将你建立的page地址指向你的一个子域名，实现更自定义化的page名称。</p>
 <p>Page建立好以后，我们可以使用git bash将page项目下载到本地。</p>
 <p><code>git clone https://github.com/Your_username/Your_reponame</code></p>
@@ -96,7 +120,7 @@ Released   : 20100928
 <p>pelican安装完成后可以使用pelican-quickstart来快速部署需要的文件，这个工具会采用选择的方式提供一些基本的配置指导, 可以一路使用默认选项，之后手动修改配置文件。</p>
 <p>--quickstart默认使用欧洲/巴黎时区， 需要在pelicanconf.py中修改TIMEZONE = 'UTC'</p>
 <p>--第一步选择文件路径的时候如果使用的默认.（当前路径）路径，你可以在这里找到如下文件</p>
-<p><img src= "images/file.PNG" width = 20% height = 20%/></p>
+<p><img src="https://i.loli.net/2020/04/30/qXQiU5FltVg7SM9.png" alt="file" style="zoom:80%;" /></p>
 <h4>写一个博客</h4>
 <p>打开Typora, 输入下列内容</p>
 <div class="highlight"><pre><span></span><code><span class="n">Title</span><span class="o">:</span> <span class="n">My</span> <span class="n">first</span> <span class="n">blog</span>
@@ -115,7 +139,7 @@ Released   : 20100928
 <p>执行完成后，你就可以到output目录下找到生成的html文件了，要在发布前检查内容，可以在该目录下执行</p>
 <p><code>python -m http.server</code>   或者  <code>pelican --listen</code></p>
 <p>我在执行后者的情况下，无法通过Ctrl+C退出，因为对这个组件还不是特别熟悉。一旦上面的命令运行成功，你就可以使用浏览器打开<em>http://localhost:8000</em>访问到你的测试网站了。</p>
-<p><img src= "images/page.PNG" width = 80%/></p>
+<p><img src="https://i.loli.net/2020/04/30/zsetjKG9cXimJRd.png" alt="blog" style="zoom:80%;" /></p>
 <p>当当当当！我们的测试页面就完成了，我们可以考虑调整一下默认的界面模板。</p>
 <blockquote>
 <p>http://www.pelicanthemes.com/  --这里是各种模板的预览地址，可以挑一个自己喜欢的主题</p>
@@ -126,7 +150,7 @@ Released   : 20100928
 </blockquote>
 <p>下载好主题后，可以在pelicanconf.py文件内指定主题，添加如下内容：</p>
 <p><code>THEME = "/home/user/pelican-themes/theme-name"</code></p>
-<p>调整完主题后，你需要重新生成一下网页，以让效果显现出来。</p>
+<p>调整完主题后，你需要重新生成一下网页，以让效果显现出来。确认效果可以重新执行上面的<code>python -m http.server</code></p>
 <p>最后调整完毕后，我们就可以把网页上传到我们的GitHub Page中去了</p>
 <p><code>cd ./output</code></p>
 <p><code>git init</code></p>
@@ -139,68 +163,14 @@ Released   : 20100928
 <blockquote>
 <p>https://sspai.com/post/54608 --GitHub Pages 搭建教程</p>
 <p>https://maxwell-nc.github.io/blog/pelicanBuildBlog.html  --Windows下使用Pelican搭建静态博客</p>
-</blockquote>	
-						</div>
-					</div>
-			      
-					<div style="clear: both;">&nbsp;</div>
-				</div>
-				<!-- end #content -->
-				<div id="sidebar">
-					<div id="logo">
-						<h1><a href="https://rex657.github.io/blog">Rex657's Blog</a></h1>
-					</div>
-					<div id="menu">
-						<ul>
-							<li ><a href="https://rex657.github.io/blog">Home</a></li>
-							<li ><a href="https://rex657.github.io/blog/archives.html">Archives</a></li>
-						</ul>
-					</div>
-					<ul>
-						<li>
-							<h2>Category</h2>
-							<ul>
-								 <li class="active"><a href="https://rex657.github.io/blog/category/tutorial.html">Tutorial</a></li>
-							</ul>
-						</li>
-						<li>
-							<h2>Blogroll</h2>
-							<ul>
-                                                            <li><a href="https://docs.getpelican.com">Pelican Docs</a></li>
-                                                            <li><a href="http://python.org/">Python.org</a></li>
-							</ul>
-						</li>
-                                                <li>
-                                                        <h2>Social</h2>
-                                                        <ul>
-                                                            <li><a href="#">Wechat: WTF353019656</a></li>
-                                                            <li><a href="https://rex657.giuhub.io">GitHub</a></li>
-                                                        </ul>
-                                                </li><!-- /.social -->
-						<li>
-						        <h2>Tags</h2>
-						        <ul>
-                                                                <li><a href="https://rex657.github.io/blog/tag/python.html">Python</a></li>
-                                                                <li><a href="https://rex657.github.io/blog/tag/pelican.html">Pelican</a></li>
-                                                                <li><a href="https://rex657.github.io/blog/tag/typora.html">Typora</a></li>
-						        </ul>
-						</li>
-						
-						
-					</ul>
-				</div>
-				<!-- end #sidebar -->
-				<div style="clear: both;">&nbsp;</div>
-			</div>
-		</div>
+</blockquote></div>
 	</div>
-	<!-- end #page -->
+		<footer>
+		  <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme based on <a href="http://twitter.github.com/bootstrap/">Twitter Bootstrap</a>.</p>
+		  <p>&copy; rex657</p>
+		</footer>
+	  </div>
 
-<div id="footer">
-	<p>Copyright (c) 2008 Sitename.com. All rights reserved. Design by <a href="http://www.freecsstemplates.org/">CSS Templates</a>.</p>
-	<p>Proudly powered by <a href="http://alexis.notmyidea.org/pelican/">pelican</a>, which takes great advantages of <a href="http://python.org">python</a>.
-</p>
-</div>
-<!-- end #footer -->
+	</div>
 </body>
 </html>
