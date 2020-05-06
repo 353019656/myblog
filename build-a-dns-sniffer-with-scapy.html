@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Rex657's Blog</title>
+	<meta name="description" content="">
+	<meta name="author" content="rex657">
+
+	<!-- HTML5 shim, for IE6-8 support of HTML elements -->
+	<!--[if lt IE 9]>
+		<script src="https://rex657.github.io/blog/theme/html5.js"></script>
+	<![endif]-->
+
+	<!-- Styles -->
+	<link href="https://rex657.github.io/blog/theme/bootstrap.min.css" rel="stylesheet">
+	<link href="https://rex657.github.io/blog/theme/local.css" rel="stylesheet">
+	<link href="https://rex657.github.io/blog/theme/pygments.css" rel="stylesheet">
+
+	<!-- Feeds -->
+
+
+
+
+</head>
+<body>
+	<div class="topbar">
+	  <div class="topbar-inner">
+		<div class="container-fluid">
+		  <a class="brand" href="https://rex657.github.io/blog/">Rex657's Blog</a>
+			<ul class="nav">
+					<li class="active"><a href="https://rex657.github.io/blog/category/python.html">Python</a></li>
+					<li ><a href="https://rex657.github.io/blog/category/tutorial.html">Tutorial</a></li>
+			</ul>
+			<p class="pull-right"><a href="https://rex657.github.io/blog/archives.html">[archives]</a> <a href="https://rex657.github.io/blog/tags.html">[tags]</a></p>
+		</div>
+	  </div>
+	</div>
+
+	<div class="container-fluid">
+	  <div class="sidebar">
+		<div class="well">
+			<h3>Blogroll</h3>
+			<ul>
+				<li><a href="https://docs.getpelican.com">Pelican Docs</a></li>
+				<li><a href="http://python.org/">Python.org</a></li>
+			</ul>
+			<div class="social">
+			<h3>Social</h3>
+			<ul>
+				<li><a href="#">Wechat: WTF353019656</a></li>
+				<li><a href="https://rex657.giuhub.io">GitHub</a></li>
+			</ul>
+			</div>
+		</div>
+	  </div>
+	  <div class="content">
+	<div class='article'>
+		<div class="page-header"><h1>Build a DNS Sniffer with scapy</h1></div>
+		<div class="well small">Permalink: <a class="more" href="https://rex657.github.io/blog/build-a-dns-sniffer-with-scapy.html">2020-05-06 21:31:43+00:00</a>
+by <a class="url fn" href="https://rex657.github.io/blog/author/rex657.html">Rex657 </a>
+ in <a href="https://rex657.github.io/blog/category/python.html">Python</a>
+tags: <a href="https://rex657.github.io/blog/tag/python.html">Python</a> <a href="https://rex657.github.io/blog/tag/scapy.html">Scapy</a> </div>
+		<div><h1>使用python的scapy模块打造DNS监控</h1>
+<p>———————————————————————————————————————————————————————</p>
+<h2>简介</h2>
+<p>因为最近工作中有个需求是需要记录终端的dns请求，并进行对比和记录，这里研究了一下，使用python写了一个简单的本机dns请求的监控脚本。脚本设置后可以监控本机对特定域名的请求记录，以及记录这些dns请求的响应内容。用到了python一个看起来应用可以很广的（据我搜索的结果，可以使用这个模块进行本机的，好像并没有什么明显的意义，DNS欺骗）模块——scapy。本文只使用了这个模块的一小部分功能。</p>
+<h3>Scapy</h3>
+<p>Scapy是python一个非常强大的应用框架，可以非常方便的实现数据包的发送，嗅探，拆解和伪造（原文是forge，想了好几个词，不太确定要用生成和捏造...orz好像更奇怪了）数据包，可以用于编写对网络探测，扫描和攻击的工具。官方的介绍文档在这里：</p>
+<blockquote>
+<p>https://scapy.readthedocs.io/en/latest/ --scapy official documentation</p>
+</blockquote>
+<p>我在自己的python 3.7环境下使用pip安装了scapy[basic]</p>
+<p><code>pip install --pre scapy[basic]</code></p>
+<p>这里因为时间比较赶，直接使用了官方的推荐安装方式（这种做法以后还是少一点好），之后就可以愉快的使用<strong>命令行中的wireshark</strong>了。</p>
+<h3>开始干活！</h3>
+<p>开始之前有几点需要注意的，scapy会使用wincap捕捉数据包，所以开始前确保电脑是<strong>安装了winpcap或npcap</strong>的，不然嗅探是无法正常工作的。另外先了解一下TCP/IP四层模型中的DNS协议报文。 我在下面直接贴了一个：</p>
+<p><img src= "https://i.loli.net/2020/05/06/48bfoKAiVrhtlDB.png" alt="DNScontent" style="zoom:80%;"/></p>
+<p>这个报文是直接使用sniff(filter='udp and port 53', prn=lambda x:x.summary)模块抓取下来的，我对长报文进行了重新排版（狠狠夸一波VScode，相见恨晚），你可以看出这个报文遵循了TCP/IP的四层模型，对应如下：</p>
+<blockquote>
+<p>Ether部分 -- 对应网络接口层</p>
+<p>IP部分 -- 对应网络层</p>
+<p>UDP部分 -- 对应传输层</p>
+<p>DNS部分 -- 对应应用层</p>
+</blockquote>
+<p>从报文的实际内容也可以看出，上面是query，下面是收到的response，即客户机向1.1.1.1这个dns服务器请求bing.com的地址，1.1.1.1则回复了两个可用的IP，204开头的和13开头的。下面是实际nslookup的回复内容：</p>
+<p><img src="https://i.loli.net/2020/05/06/Q6FZkuBHUbtmPAM.png" alt= "nslooup_result" style="zoom:80%;"/> </p>
+<p>上面的dns报文只是使用过滤器简单过滤了可能的dns报文后进行的简单展示，我们后面会展示代码对DNS请求和DNS应答进行进一步过滤。</p>
+<h3>代码部分</h3>
+<p>参考了一些其他脚本后写的，使用VScode 预运行的时候提示有很多import了但未使用的组件，估计还有优化空间。（优化和前面的几篇文章说的一样，是以后的事orz..）</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">scapy.all</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">scapy.layers.dns</span> <span class="kn">import</span> <span class="n">DNSRR</span><span class="p">,</span> <span class="n">DNSQR</span>
+
+
+
+<span class="k">def</span> <span class="nf">dns_sniff</span><span class="p">(</span><span class="n">pkt</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">pkt</span><span class="o">.</span><span class="n">dport</span> <span class="o">==</span> <span class="mi">53</span> <span class="ow">and</span> <span class="s1">&#39;bing&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">pkt</span><span class="p">[</span><span class="n">DNSQR</span><span class="p">]</span><span class="o">.</span><span class="n">qname</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Host is requesting for url: </span><span class="si">%s</span><span class="s2"> from </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span><span class="p">(</span>
+                <span class="n">pkt</span><span class="p">[</span><span class="n">DNSQR</span><span class="p">]</span><span class="o">.</span><span class="n">qname</span><span class="p">,</span> <span class="n">pkt</span><span class="p">[</span><span class="n">IP</span><span class="p">]</span><span class="o">.</span><span class="n">dst</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">pkt</span><span class="o">.</span><span class="n">sport</span> <span class="o">==</span> <span class="mi">53</span> <span class="ow">and</span> <span class="s1">&#39;bing&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">pkt</span><span class="p">[</span><span class="n">DNSRR</span><span class="p">]</span><span class="o">.</span><span class="n">rrname</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">pkt</span><span class="p">[</span><span class="n">DNS</span><span class="p">]</span><span class="o">.</span><span class="n">ancount</span><span class="p">):</span>
+                <span class="n">dnsrr</span> <span class="o">=</span> <span class="n">pkt</span><span class="p">[</span><span class="n">DNS</span><span class="p">]</span><span class="o">.</span><span class="n">an</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Server offers: </span><span class="si">%s</span><span class="s2"> is in </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span><span class="p">(</span>
+                    <span class="n">dnsrr</span><span class="o">.</span><span class="n">rrname</span><span class="p">,</span> <span class="n">dnsrr</span><span class="o">.</span><span class="n">rdata</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">sniff</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="s2">&quot;udp and port 53&quot;</span><span class="p">,</span> <span class="n">prn</span><span class="o">=</span><span class="n">dns_sniff</span><span class="p">)</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</code></pre></div>
+
+
+<p>代码部分请结合sniff得到的较原始的报文内容进行查阅，如果有对报文其他部分内容的摘出需求，可以结合报文去修改脚本以实现更自主化的应用。</p>
+<p>运行后，我们再在客户机上访问目标地址或直接使用nslookup发送DNS请求，你就可用看到输出的内容了：</p>
+<p><img src="https://i.loli.net/2020/05/06/eSZGRM4E75suLvU.png" alt="output" style="zoom:80%;"/></p>
+<p>后面可以继续使用探测到的结果进行其他的操作，这里就不一一说明了。另外发现nslookup进行DNS请求的时候实际上会进行两次，一次是ipv4的请求，另一次是ipv6的请求，暂时没有对这个现象进行深入的研究，应该是nslookup会默认针对ipv4和ipv6进行两次请求，因为sniff给出的报文在Ether部分有type字段，估计不能在一个请求中同时包含两种地址的type。</p>
+<h3>参考链接</h3>
+<blockquote>
+<p>https://stackoverflow.com/questions/25092538/scapy-dns-sniff-with-additional-records   --参考了帖子中对报文解析的思路</p>
+<p>https://blog.csdn.net/nixawk/article/details/45933299  --参考了sniff的用法</p>
+</blockquote></div>
+	</div>
+		<footer>
+		  <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme based on <a href="http://twitter.github.com/bootstrap/">Twitter Bootstrap</a>.</p>
+		  <p>&copy; rex657</p>
+		</footer>
+	  </div>
+
+	</div>
+</body>
+</html>
