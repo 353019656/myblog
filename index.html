@@ -56,6 +56,69 @@
 	  <div class="content">
 <div class="page-header"><h1> Rex657's Blog </h1></div>
 <div class='article'>
+	<h2>Use Selenium to finish some tiring work</h2>
+	<div class="well small">Permalink: <a class="more" href="https://rex657.github.io/blog/use-selenium-to-finish-some-tiring-work.html">2020-07-17 09:44:00+00:00</a>
+by <a class="url fn" href="https://rex657.github.io/blog/author/rex657.html">Rex657 </a>
+ in <a href="https://rex657.github.io/blog/category/tutorial.html">Tutorial</a>
+tags: <a href="https://rex657.github.io/blog/tag/python.html">Python</a> <a href="https://rex657.github.io/blog/tag/automation.html">Automation</a> </div>
+	<div class="summary"><h1>Selenium 助力完成网页自动化操作</h1>
+<p>——————————————————————————————————————————————</p>
+<h2>简介</h2>
+<p>这里介绍一下如何使用python编写基于selenium的浏览器操作程序，从而实现浏览器页面的一些自动操作，包括打开表单，填入内容。这里不涉及如何构建完整的程序，只是将我个人在使用这个东西的时候的发现的一些有意思的点记录一下。</p>
+<h2>Selenium</h2>
+<p>这个程序会调用各种浏览器的"driver"程序，驱动浏览器完成一系列指定的操作，可以说是非常方便了。而且现在selenium也提供了对很多主流浏览器的支持，官方提到了"One interface to rule them all"，魔戒梗无疑了。官方文档声明这个程序主要是用于自动化操作网页实现自动化的测试，但也说明程序的用处不止于此。这个程序最经典的用处我想大概是前端开发人员在开发了新的网页平台后通过预设的selenium操作让测试机器自动完成一系列"点点点"的操作，并生成截图和文字的测试结果供查验，或者是产品打磨阶段基于用户的操作习惯模拟用户的一般操作，从而提前发现可能的bug。</p>
+<h3>关于自动化测试</h3>
+<p>现阶段的测试已经不再是那种一个测试人员走进酒吧点炒饭的时期了，很多公司的产品都是包装成一个精美的前端和对用户隐藏的后端系统构成的，而且很多时候还包含很多不同的功能，不同的子页面，重复式的测试已经不是主流，这也让使用到web元素的自动化测试具有非常广阔的应用前景。另外还包括selenium"剑走偏锋"的用途--网络爬虫。如果能在这些需要大量重复性工作的领域实现自动化，那一定可以很大程度上减少测试人员的负担，让测试能更多地把精力投入到报告bug的过程中去（另应该得防一下开发人员的"下班别走"了）。</p>
+<h2>Browser-driver</h2>
+<p>浏览器的driver程序是由官方直接提供的 …</p> <a class="btn primary xsmall" href="https://rex657.github.io/blog/use-selenium-to-finish-some-tiring-work.html">more…</a>
+	</div>
+</div>	
+<div class='article'>
+	<h2>Use PXE to install Windows NT</h2>
+	<div class="well small">Permalink: <a class="more" href="https://rex657.github.io/blog/use-pxe-to-install-windows-nt.html">2020-07-17 09:41:00+00:00</a>
+by <a class="url fn" href="https://rex657.github.io/blog/author/rex657.html">Rex657 </a>
+ in <a href="https://rex657.github.io/blog/category/tutorial.html">Tutorial</a>
+tags: <a href="https://rex657.github.io/blog/tag/pxe.html">PXE</a> <a href="https://rex657.github.io/blog/tag/win10.html">WIN10</a> </div>
+	<div class="summary"><h1>使用PXE server引导安装Win10</h1>
+<p>——————————————————————————————————————————————</p>
+<h2>思路介绍</h2>
+<p>之前研究过使用pxe技术进行自动化的linux发行版（主要是CentOS7系列）的安装，因为平时也会使用Win10，所以额外看了一下如何使用pxe引导安装win10。这里采用的方法颇有点曲线救国的意思，即先使用pxe引导WinPE，之后从WinPE挂载镜像或使用网络地址共享的安装文件启动安装程序，核心还是使用了WinPE的便捷引导。</p>
+<p>我也尝试过直接使用pxe引导Win10的内核文件，但这种方式无法在系统安装程序开始后识别硬盘，估计是因为缺少了install.wim的驱动。</p>
+<h2>准备步骤</h2>
+<p>准备好对应版本的WinPE，如果你需要安装64位的系统，就需要准备64位的WinPE镜像，反之32位对应32位的WinPE，我则是两种都准备好了。</p>
+<p>WinPE可以通过Windows ADK生成，Microsoft的文档库对这个步骤有较为详细的说明，我这里就不班门弄斧了，请移步下方链接查看制作WinPE.iso的步骤。</p>
+<blockquote>
+<p>https://docs.microsoft.com/zh-cn/windows-hardware/manufacture/desktop/download-winpe--windows-pe  下载 WinPE (Windows PE)</p>
+<p>https://docs.microsoft.com/zh-cn/windows-hardware/manufacture/desktop/winpe-create-usb-bootable-drive …</p></blockquote> <a class="btn primary xsmall" href="https://rex657.github.io/blog/use-pxe-to-install-windows-nt.html">more…</a>
+	</div>
+</div>	
+<div class='article'>
+	<h2>How to build your openLDAP server</h2>
+	<div class="well small">Permalink: <a class="more" href="https://rex657.github.io/blog/how-to-build-your-openldap-server.html">2020-07-17 09:40:00+00:00</a>
+by <a class="url fn" href="https://rex657.github.io/blog/author/rex657.html">Rex657 </a>
+ in <a href="https://rex657.github.io/blog/category/tutorial.html">Tutorial</a>
+tags: <a href="https://rex657.github.io/blog/tag/ldap.html">LDAP</a> </div>
+	<div class="summary"><h1>openLDAP安装和用户管理</h1>
+<p>———————————————————————————————————————————————</p>
+<h3>LDAP协议</h3>
+<p>LDAP的全称为Lightweight Directory Access Protocol，一般被称为LDAP。LDAP本身是一种用于限定Client,server间信息交换格式，端口号和认证方式等内容的协议。LDAP的数据交换是基于TCP协议的，抓取的报文显示一次LDAP认证过程和一次https连接并没有太大的不同。这里是一个数据包的解析内容：</p>
+<p><img alt="" src="https://i.loli.net/2020/06/28/YEH1ltWyhbgjzTN.png"></p>
+<p>其中2.61是发起认证请求的client端，2.52是部署了openLDAP服务的LDAP服务器。目前使用较多的基于LDAP协议的应用，一种是Microsoft的AD，Active Directory，另一种就是Linux上的OpenLDAP服务，这里我们要介绍的是openLDAP服务器端的搭建流程。</p>
+<h3>部署前准备</h3>
+<p>部署环境为一台安装了CentOS7.2的服务器。提前给服务器配置好IP地址。</p>
+<p>初始化环境时，安装如下软件包：</p>
+<p><code>yum -y install openldap compat-openldap openldap-clients openldap-servers openldap-servers-sql openldap-devel</code></p>
+<p>安装完成后启动服务</p>
+<p><code>systemcrl start slapd</code></p>
+<p><code>systemctl enable slapd</code></p>
+<p>服务启动后查看ldap-server的默认端口389是否开启</p>
+<p><img alt="" src="https://i.loli.net/2020/06/28/VHPMr2FjfRvdUJn.png"></p>
+<p>一切正常的话，我们就可以进行接下来的服务配置了。</p>
+<h3>服务配置</h3>
+<p>openLDAP安装完成后会在默认安装路径 …</p> <a class="btn primary xsmall" href="https://rex657.github.io/blog/how-to-build-your-openldap-server.html">more…</a>
+	</div>
+</div>	
+<div class='article'>
 	<h2>Build a DNS Sniffer with scapy</h2>
 	<div class="well small">Permalink: <a class="more" href="https://rex657.github.io/blog/build-a-dns-sniffer-with-scapy.html">2020-05-06 21:31:43+00:00</a>
 by <a class="url fn" href="https://rex657.github.io/blog/author/rex657.html">Rex657 </a>
@@ -99,24 +162,15 @@ tags: <a href="https://rex657.github.io/blog/tag/docker.html">Docker</a> <a href
 <p><code>Error starting daemon …</code></p> <a class="btn primary xsmall" href="https://rex657.github.io/blog/build-a-cobbler-in-docker-container.html">more…</a>
 	</div>
 </div>	
-<div class='article'>
-	<h2>Tutorial On Building Your Static Blog</h2>
-	<div class="well small">Permalink: <a class="more" href="https://rex657.github.io/blog/tutorial-on-building-your-static-blog.html">2020-04-29 16:14:00+00:00</a>
-by <a class="url fn" href="https://rex657.github.io/blog/author/rex657.html">Rex657 </a>
- in <a href="https://rex657.github.io/blog/category/tutorial.html">Tutorial</a>
-tags: <a href="https://rex657.github.io/blog/tag/python.html">Python</a> <a href="https://rex657.github.io/blog/tag/pelican.html">Pelican</a> <a href="https://rex657.github.io/blog/tag/typora.html">Typora</a> </div>
-	<div class="summary"><h1>使用Pelican+Typora+GitHub Page搭建静态博客</h1>
-<p>———————————————————————————————————————————————————————</p>
-<h2>简介</h2>
-<p>​    一直想有个平台来记录一下自己在技术学习道路上的经历和心得，刚好近期了解了一下静态博客的技术，计划以后慢慢将原来写在文档里的东西发布到博客上来。希望不要烂尾了Orz..</p>
-<p>那么首先来看一下这里提到的三个组件都是什么吧！</p>
-<h3>Pelican</h3>
-<p>首先是Pelican, pelican dev团队给这个组件提供的介绍是这样的：</p>
-<blockquote>
-<p>Pelican is a simple static blog generator. It parses markup files (Markdown or reStructuredText for now) and generates an HTML folder with all the files in it. I’ve chosen to use Python to implement Pelican …</p></blockquote> <a class="btn primary xsmall" href="https://rex657.github.io/blog/tutorial-on-building-your-static-blog.html">more…</a>
-	</div>
-</div>	
 
+<div class="pagination">
+<ul>
+		<li class="prev disabled"><a href="#">&larr; Previous</a></li>
+		<li class="active"><a href="https://rex657.github.io/blog/index.html">1</a></li>
+		<li class=""><a href="https://rex657.github.io/blog/index2.html">2</a></li>
+		<li class="next"><a href="https://rex657.github.io/blog/index2.html">Next &rarr;</a></li>
+</ul>
+</div>
 
 		<footer>
 		  <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme based on <a href="http://twitter.github.com/bootstrap/">Twitter Bootstrap</a>.</p>
