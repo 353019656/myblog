@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Rex657's Blog</title>
+	<meta name="description" content="">
+	<meta name="author" content="rex657">
+
+	<!-- HTML5 shim, for IE6-8 support of HTML elements -->
+	<!--[if lt IE 9]>
+		<script src="https://rex657.github.io/blog/theme/html5.js"></script>
+	<![endif]-->
+
+	<!-- Styles -->
+	<link href="https://rex657.github.io/blog/theme/bootstrap.min.css" rel="stylesheet">
+	<link href="https://rex657.github.io/blog/theme/local.css" rel="stylesheet">
+	<link href="https://rex657.github.io/blog/theme/pygments.css" rel="stylesheet">
+
+	<!-- Feeds -->
+
+
+
+
+</head>
+<body>
+	<div class="topbar">
+	  <div class="topbar-inner">
+		<div class="container-fluid">
+		  <a class="brand" href="https://rex657.github.io/blog/">Rex657's Blog</a>
+			<ul class="nav">
+					<li ><a href="https://rex657.github.io/blog/category/python.html">Python</a></li>
+					<li class="active"><a href="https://rex657.github.io/blog/category/tutorial.html">Tutorial</a></li>
+			</ul>
+			<p class="pull-right"><a href="https://rex657.github.io/blog/archives.html">[archives]</a> <a href="https://rex657.github.io/blog/tags.html">[tags]</a></p>
+		</div>
+	  </div>
+	</div>
+
+	<div class="container-fluid">
+	  <div class="sidebar">
+		<div class="well">
+			<h3>Blogroll</h3>
+			<ul>
+				<li><a href="https://docs.getpelican.com">Pelican Docs</a></li>
+				<li><a href="http://python.org/">Python.org</a></li>
+			</ul>
+			<div class="social">
+			<h3>Social</h3>
+			<ul>
+				<li><a href="#">Wechat: WTF353019656</a></li>
+				<li><a href="https://rex657.giuhub.io">GitHub</a></li>
+			</ul>
+			</div>
+		</div>
+	  </div>
+	  <div class="content">
+	<div class='article'>
+		<div class="page-header"><h1>How to build your openLDAP server</h1></div>
+		<div class="well small">Permalink: <a class="more" href="https://rex657.github.io/blog/how-to-build-your-openldap-server.html">2020-07-17 09:40:00+00:00</a>
+by <a class="url fn" href="https://rex657.github.io/blog/author/rex657.html">Rex657 </a>
+ in <a href="https://rex657.github.io/blog/category/tutorial.html">Tutorial</a>
+tags: <a href="https://rex657.github.io/blog/tag/ldap.html">LDAP</a> </div>
+		<div><h1>openLDAP安装和用户管理</h1>
+<p>———————————————————————————————————————————————</p>
+<h3>LDAP协议</h3>
+<p>LDAP的全称为Lightweight Directory Access Protocol，一般被称为LDAP。LDAP本身是一种用于限定Client,server间信息交换格式，端口号和认证方式等内容的协议。LDAP的数据交换是基于TCP协议的，抓取的报文显示一次LDAP认证过程和一次https连接并没有太大的不同。这里是一个数据包的解析内容：</p>
+<p><img alt="" src="https://i.loli.net/2020/06/28/YEH1ltWyhbgjzTN.png"></p>
+<p>其中2.61是发起认证请求的client端，2.52是部署了openLDAP服务的LDAP服务器。目前使用较多的基于LDAP协议的应用，一种是Microsoft的AD，Active Directory，另一种就是Linux上的OpenLDAP服务，这里我们要介绍的是openLDAP服务器端的搭建流程。</p>
+<h3>部署前准备</h3>
+<p>部署环境为一台安装了CentOS7.2的服务器。提前给服务器配置好IP地址。</p>
+<p>初始化环境时，安装如下软件包：</p>
+<p><code>yum -y install openldap compat-openldap openldap-clients openldap-servers openldap-servers-sql openldap-devel</code></p>
+<p>安装完成后启动服务</p>
+<p><code>systemcrl start slapd</code></p>
+<p><code>systemctl enable slapd</code></p>
+<p>服务启动后查看ldap-server的默认端口389是否开启</p>
+<p><img alt="" src="https://i.loli.net/2020/06/28/VHPMr2FjfRvdUJn.png"></p>
+<p>一切正常的话，我们就可以进行接下来的服务配置了。</p>
+<h3>服务配置</h3>
+<p>openLDAP安装完成后会在默认安装路径/etc/openldap/slapd.d目录下建立一些配置文件，这些文件以.ldif为后缀。需求修改openLDAP的ldif配置文件时，最好使用ldapmodify命令加载新的配置，而不是直接去修改ldif文件。首先我们先创建一个测试域，并配置该域管理员的认证密码。</p>
+<p><code>slappasswd -h {SSHA} -s your-password-here  #创建SSHA加密的密钥字串，把“your-passowrd-here”替换成你需要的密码</code></p>
+<p>在/etc/openldap/slapd.d路径下建立新的ldif配置文件，内容如下：</p>
+<div class="highlight"><pre><span></span><code><span class="n">vim</span> <span class="n">db</span><span class="p">.</span><span class="n">ldif</span>
+
+<span class="n">dn</span><span class="p">:</span> <span class="n">olcDatabase</span><span class="o">=</span><span class="err">{</span><span class="mi">2</span><span class="err">}</span><span class="n">hdb</span><span class="p">,</span><span class="n">cn</span><span class="o">=</span><span class="n">config</span>
+<span class="n">changetype</span><span class="p">:</span> <span class="k">modify</span>
+<span class="k">replace</span><span class="p">:</span> <span class="n">olcSuffix</span>
+<span class="n">olcSuffix</span><span class="p">:</span> <span class="n">dc</span><span class="o">=</span><span class="n">fortest</span><span class="p">,</span><span class="n">dc</span><span class="o">=</span><span class="k">local</span>    <span class="o">#</span><span class="err">建立新域</span>
+
+<span class="n">dn</span><span class="p">:</span> <span class="n">olcDatabase</span><span class="o">=</span><span class="err">{</span><span class="mi">2</span><span class="err">}</span><span class="n">hdb</span><span class="p">,</span><span class="n">cn</span><span class="o">=</span><span class="n">config</span>
+<span class="n">changetype</span><span class="p">:</span> <span class="k">modify</span>
+<span class="k">replace</span><span class="p">:</span> <span class="n">olcRootDN</span>
+<span class="n">olcRootDN</span><span class="p">:</span> <span class="n">cn</span><span class="o">=</span><span class="k">admin</span><span class="p">,</span><span class="n">dc</span><span class="o">=</span><span class="n">fortest</span><span class="p">,</span><span class="n">dc</span><span class="o">=</span><span class="k">local</span>    <span class="o">#</span><span class="err">指定域管理员名称</span>
+
+<span class="n">dn</span><span class="p">:</span> <span class="n">olcDatabase</span><span class="o">=</span><span class="err">{</span><span class="mi">2</span><span class="err">}</span><span class="n">hdb</span><span class="p">,</span><span class="n">cn</span><span class="o">=</span><span class="n">config</span>
+<span class="n">changetype</span><span class="p">:</span> <span class="k">modify</span>
+<span class="k">replace</span><span class="p">:</span> <span class="n">olcRootPW</span>
+<span class="n">olcRootPW</span><span class="p">:</span> <span class="err">{</span><span class="n">SSHA</span><span class="err">}</span><span class="n">I85WlV9uATaU7sQ</span><span class="o">/</span><span class="n">caR3Qyy2CecpLIvC</span>    <span class="o">#</span><span class="err">把</span><span class="n">slappasswd命令的输出结果填入此处</span><span class="err">，并以该密钥作为域管理员的登录密码</span>
+</code></pre></div>
+
+
+<p>完成后，执行ldapmodify加载该配置文件，将修改写入</p>
+<p><code>ldapmodify -Y EXTERNAL -H ldapi:/// -f db.ldif</code></p>
+<p>（非必要？）建立一个新的配置文件，指定monitor这个cn的访问权限，限制该cn只能由管理员或管理员用户组（这里我们使用的是admin）读取，其他用户无法读取其内容。</p>
+<div class="highlight"><pre><span></span><code><span class="n">vim</span> <span class="n">monitor</span><span class="p">.</span><span class="n">ldif</span>
+
+<span class="n">dn</span><span class="p">:</span> <span class="n">olcDatabase</span><span class="o">=</span><span class="err">{</span><span class="mi">1</span><span class="err">}</span><span class="n">monitor</span><span class="p">,</span><span class="n">cn</span><span class="o">=</span><span class="n">config</span>
+<span class="n">changetype</span><span class="p">:</span> <span class="k">modify</span>
+<span class="k">replace</span><span class="p">:</span> <span class="n">olcAccess</span>
+<span class="n">olcAccess</span><span class="p">:</span> <span class="err">{</span><span class="mi">0</span><span class="err">}</span><span class="k">to</span> <span class="o">*</span> <span class="k">by</span> <span class="n">dn</span><span class="p">.</span><span class="n">base</span><span class="o">=</span><span class="ss">&quot;gidNumber=0+uidNumber=0,cn=peercred,cn=external, cn=auth&quot;</span> <span class="k">read</span> <span class="k">by</span> <span class="n">dn</span><span class="p">.</span><span class="n">base</span><span class="o">=</span><span class="ss">&quot;cn=admin,dc=fortest,dc=local&quot;</span> <span class="k">read</span> <span class="k">by</span> <span class="o">*</span> <span class="k">none</span>
+</code></pre></div>
+
+
+<p>如果你使用自定义的域和管理员名称，请对照修改，完成后同样使用命令写入修改</p>
+<p><code>ldapmodify -Y EXTERNAL  -H ldapi:/// -f monitor.ldif</code></p>
+<p>接下来将openldap-server的配置模板加载为运行的配置文件，并将配置文件转给ldap用户</p>
+<p><code>cp /usr/share/openldap-servers/DB_CONFIG.example /var/lib/ldap/DB_CONFIG</code></p>
+<p><code>chown ldap:ldap /var/lib/ldap/*</code></p>
+<p>导入数据库schema文件，一共需要导入三个</p>
+<div class="highlight"><pre><span></span><code><span class="err">ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/nis.ldif </span>
+<span class="err">ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/inetorgperson.ldif</span>
+<span class="err">ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/cosine.ldif</span>
+</code></pre></div>
+
+
+<p>导入结果如下，未出现报错即代表导入成功</p>
+<p><img alt="" src="https://i.loli.net/2020/06/28/VRCyTmEHpLiIDQF.png"></p>
+<p>到这里我们的open-ldap服务器已经准备好了，可以使用Apache Directory Studio连接到LDAP-server，进行后续操作。</p>
+<h3>界面操作LDAP-server</h3>
+<p>打开Apache Directory Studio后，先建立连接，这个步骤和Navicat或者其他数据库UI应用类似，都是先填写连接信息，后补充认证信息，同时这两个环节都提供了测试选项，以便了解哪个环节出现问题。</p>
+<p><img alt="" src="https://i.loli.net/2020/06/28/1fPv5JVOE2usLHC.png"></p>
+<p>在主界面中左下角右键打开菜单，并选择New Connection建立新连接</p>
+<p><img alt="" src="https://i.loli.net/2020/06/28/eSrtq2jfh4XpHcY.png"></p>
+<p>填写连接信息，分别有连接名称，连接地址，端口。填写完了可以点击Check 按钮测试连通性。正常会显示如下信息：</p>
+<p><img alt="" src="https://i.loli.net/2020/06/28/ZC2j1kyi3HIFlEm.png"></p>
+<p>然后是配置认证信息</p>
+<p><img alt="" src="https://i.loli.net/2020/06/28/mC8LQVqlhzFtTK7.png"></p>
+<p>使用之前配置的rootDN和密码，进行认证信息验证，Check Authentication 会显示认证的结果，信息无误的话会显示如下信息</p>
+<p><img alt="" src="https://i.loli.net/2020/06/28/UG61TAqvZYHyiR4.png"></p>
+<p>最后点击finish来完成设置并保存连接。连接保存后可以双击打开，但此时因为没有建立entry所以看不到节点内的数据，接下来进行数据结构导入，并创建用户和部门</p>
+<p>同样我们返回LDAP-server，使用ldif来导入数据库</p>
+<div class="highlight"><pre><span></span><code><span class="n">vim</span> <span class="n">base</span><span class="p">.</span><span class="n">ldif</span>
+
+<span class="n">dn</span><span class="p">:</span> <span class="n">dc</span><span class="o">=</span><span class="n">fortest</span><span class="p">,</span><span class="n">dc</span><span class="o">=</span><span class="k">local</span>
+<span class="n">dc</span><span class="p">:</span> <span class="n">fortest</span>
+<span class="n">objectClass</span><span class="p">:</span> <span class="n">top</span>
+<span class="n">objectClass</span><span class="p">:</span> <span class="k">domain</span>
+
+<span class="n">dn</span><span class="p">:</span> <span class="n">cn</span><span class="o">=</span><span class="k">admin</span><span class="p">,</span><span class="n">dc</span><span class="o">=</span><span class="n">fortest</span><span class="p">,</span><span class="n">dc</span><span class="o">=</span><span class="k">local</span>
+<span class="n">objectClass</span><span class="p">:</span> <span class="n">organizationalRole</span>
+<span class="n">cn</span><span class="p">:</span> <span class="k">admin</span>
+<span class="n">description</span><span class="p">:</span> <span class="n">LDAP</span> <span class="n">Manager</span>
+
+<span class="n">dn</span><span class="p">:</span> <span class="n">ou</span><span class="o">=</span><span class="n">People</span><span class="p">,</span><span class="n">dc</span><span class="o">=</span><span class="n">fortest</span><span class="p">,</span><span class="n">dc</span><span class="o">=</span><span class="k">local</span>
+<span class="n">objectClass</span><span class="p">:</span> <span class="n">organizationalUnit</span>
+<span class="n">ou</span><span class="p">:</span> <span class="n">People</span>
+
+<span class="n">dn</span><span class="p">:</span> <span class="n">ou</span><span class="o">=</span><span class="k">Group</span><span class="p">,</span><span class="n">dc</span><span class="o">=</span><span class="n">fortest</span><span class="p">,</span><span class="n">dc</span><span class="o">=</span><span class="k">local</span>
+<span class="n">objectClass</span><span class="p">:</span> <span class="n">organizationalUnit</span>
+<span class="n">ou</span><span class="p">:</span> <span class="k">Group</span>
+</code></pre></div>
+
+
+<p>建立完成后，使用命令<code>ldapadd -x -W -D "cn=admin,dc=fortest,dc=local" -f base.ldif</code>导入这个简单的数据结构，这里其实建立了4个Entry，分别是一开始的fortest.local这个domain，管理员admin，注释中也声明该cn为LDAP 的管理员，名字为People和Group的两个组织。</p>
+<p>建立完成后，回到Directory Studio并刷新节点数据，现在应该可以看到刚刚建立的4个entry了。</p>
+<p><img alt="" src="https://i.loli.net/2020/06/28/wMU79qTBZOAcvnx.png"></p>
+<h3>添加用户</h3>
+<p>之前添加的People这个cn，属性被声明为OrganizationalUnit，即组织单元，可以被理解成公司（域）下面的一个部门（Organization），而用户具有的属性为OrganizationalPerson，组织个人。添加用户可以用比较简便的方法，即和建立base一样使用ldif文件进行导入，这里是如何在People下建立用户的一个newuser.ldif示例：</p>
+<div class="highlight"><pre><span></span><code><span class="nl">dn</span><span class="p">:</span> <span class="n">cn</span><span class="o">=</span><span class="n">jimpeterson</span><span class="p">,</span><span class="n">ou</span><span class="o">=</span><span class="n">Person</span><span class="p">,</span><span class="n">dc</span><span class="o">=</span><span class="n">fortest</span><span class="p">,</span><span class="n">dc</span><span class="o">=</span><span class="n">local</span>    <span class="err">#指定用户</span><span class="n">DN</span><span class="p">,</span><span class="err">相当于用户在域中的准确位置</span>
+<span class="nl">changetype</span><span class="p">:</span> <span class="n">add</span>    <span class="err">#新增用户</span>
+<span class="nl">uid</span><span class="p">:</span> <span class="mo">0007</span><span class="mi">8</span>    <span class="err">#赋予</span><span class="n">uid属性</span><span class="err">，该属性需要是唯一的</span>
+<span class="nl">mail</span><span class="p">:</span> <span class="n">jim</span><span class="mf">@123.</span><span class="n">com</span>    <span class="err">#（可选）给用户添加邮箱信息</span>
+<span class="nl">sn</span><span class="p">:</span> <span class="n">Jim</span>    <span class="err">#指定用户的</span><span class="n">Surname</span><span class="err">，可以重复</span>
+<span class="nl">cn</span><span class="p">:</span> <span class="n">jimpeterson</span>    <span class="err">#</span><span class="n">commonname</span><span class="err">，不可重复</span>
+<span class="nl">objectClass</span><span class="p">:</span> <span class="n">inetOrgPerson</span>
+<span class="nl">objectClass</span><span class="p">:</span> <span class="n">organizationalPerson</span>
+<span class="nl">objectClass</span><span class="p">:</span> <span class="n">person</span>
+<span class="nl">objectClass</span><span class="p">:</span> <span class="n">top</span>
+<span class="n">userPassword</span><span class="o">::</span> <span class="n">e1NTSEF9RHZFMzF3cDBsazJkT2E5SmpjUkdjbnR6OFpSWGczTGk1bUVka0E9P</span>    <span class="err">#</span><span class="n">SSHA加密密钥</span><span class="err">，明文为</span><span class="n">openldap</span>
+</code></pre></div>
+
+
+<p>这个newuser.ldif既可以直接使用Apache Directory Studio直接导入，也可以在LDAP-server中使用ldapmodify命令导入，两种方法都可以。如果使用者还有其他需求，也可以在添加用户entry的时候增加其他的属性。像此处，创建一个用户默认属性就只有cn和sn，后面的uid，mail，userPassword几个属性都是添加上去的。</p></div>
+	</div>
+		<footer>
+		  <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme based on <a href="http://twitter.github.com/bootstrap/">Twitter Bootstrap</a>.</p>
+		  <p>&copy; rex657</p>
+		</footer>
+	  </div>
+
+	</div>
+</body>
+</html>

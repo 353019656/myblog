@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Rex657's Blog</title>
+	<meta name="description" content="">
+	<meta name="author" content="rex657">
+
+	<!-- HTML5 shim, for IE6-8 support of HTML elements -->
+	<!--[if lt IE 9]>
+		<script src="https://rex657.github.io/blog/theme/html5.js"></script>
+	<![endif]-->
+
+	<!-- Styles -->
+	<link href="https://rex657.github.io/blog/theme/bootstrap.min.css" rel="stylesheet">
+	<link href="https://rex657.github.io/blog/theme/local.css" rel="stylesheet">
+	<link href="https://rex657.github.io/blog/theme/pygments.css" rel="stylesheet">
+
+	<!-- Feeds -->
+
+
+
+
+</head>
+<body>
+	<div class="topbar">
+	  <div class="topbar-inner">
+		<div class="container-fluid">
+		  <a class="brand" href="https://rex657.github.io/blog/">Rex657's Blog</a>
+			<ul class="nav">
+					<li ><a href="https://rex657.github.io/blog/category/python.html">Python</a></li>
+					<li class="active"><a href="https://rex657.github.io/blog/category/tutorial.html">Tutorial</a></li>
+			</ul>
+			<p class="pull-right"><a href="https://rex657.github.io/blog/archives.html">[archives]</a> <a href="https://rex657.github.io/blog/tags.html">[tags]</a></p>
+		</div>
+	  </div>
+	</div>
+
+	<div class="container-fluid">
+	  <div class="sidebar">
+		<div class="well">
+			<h3>Blogroll</h3>
+			<ul>
+				<li><a href="https://docs.getpelican.com">Pelican Docs</a></li>
+				<li><a href="http://python.org/">Python.org</a></li>
+			</ul>
+			<div class="social">
+			<h3>Social</h3>
+			<ul>
+				<li><a href="#">Wechat: WTF353019656</a></li>
+				<li><a href="https://rex657.giuhub.io">GitHub</a></li>
+			</ul>
+			</div>
+		</div>
+	  </div>
+	  <div class="content">
+	<div class='article'>
+		<div class="page-header"><h1>Use Selenium to finish some tiring work</h1></div>
+		<div class="well small">Permalink: <a class="more" href="https://rex657.github.io/blog/use-selenium-to-finish-some-tiring-work.html">2020-07-17 09:44:00+00:00</a>
+by <a class="url fn" href="https://rex657.github.io/blog/author/rex657.html">Rex657 </a>
+ in <a href="https://rex657.github.io/blog/category/tutorial.html">Tutorial</a>
+tags: <a href="https://rex657.github.io/blog/tag/python.html">Python</a> <a href="https://rex657.github.io/blog/tag/automation.html">Automation</a> </div>
+		<div><h1>Selenium 助力完成网页自动化操作</h1>
+<p>——————————————————————————————————————————————</p>
+<h2>简介</h2>
+<p>这里介绍一下如何使用python编写基于selenium的浏览器操作程序，从而实现浏览器页面的一些自动操作，包括打开表单，填入内容。这里不涉及如何构建完整的程序，只是将我个人在使用这个东西的时候的发现的一些有意思的点记录一下。</p>
+<h2>Selenium</h2>
+<p>这个程序会调用各种浏览器的"driver"程序，驱动浏览器完成一系列指定的操作，可以说是非常方便了。而且现在selenium也提供了对很多主流浏览器的支持，官方提到了"One interface to rule them all"，魔戒梗无疑了。官方文档声明这个程序主要是用于自动化操作网页实现自动化的测试，但也说明程序的用处不止于此。这个程序最经典的用处我想大概是前端开发人员在开发了新的网页平台后通过预设的selenium操作让测试机器自动完成一系列"点点点"的操作，并生成截图和文字的测试结果供查验，或者是产品打磨阶段基于用户的操作习惯模拟用户的一般操作，从而提前发现可能的bug。</p>
+<h3>关于自动化测试</h3>
+<p>现阶段的测试已经不再是那种一个测试人员走进酒吧点炒饭的时期了，很多公司的产品都是包装成一个精美的前端和对用户隐藏的后端系统构成的，而且很多时候还包含很多不同的功能，不同的子页面，重复式的测试已经不是主流，这也让使用到web元素的自动化测试具有非常广阔的应用前景。另外还包括selenium"剑走偏锋"的用途--网络爬虫。如果能在这些需要大量重复性工作的领域实现自动化，那一定可以很大程度上减少测试人员的负担，让测试能更多地把精力投入到报告bug的过程中去（另应该得防一下开发人员的"下班别走"了）。</p>
+<h2>Browser-driver</h2>
+<p>浏览器的driver程序是由官方直接提供的，只要你没有在用特别冷门小众的浏览器，都能找到对应版本的webdriver。比如我之前在用edge的dev版，这个就还没有driver提供，我后来是切换了edge的正式版（stable）才下载到对应版本的driver。</p>
+<h2>开始</h2>
+<p>首先是安装了，需要完成本文提到的自动化操作，你需要：</p>
+<blockquote>
+<p>win10系统</p>
+<p>浏览器（可以是Chrome, Edge, Opera, Safari等等）</p>
+<p>对应的浏览器版本的driver程序</p>
+<p>selenium(使用pip 安装)</p>
+<p>python 3.7.7(本文使用的py版本，可以使用其他版本，但不保证语句是否能正常运行)</p>
+</blockquote>
+<p>这里注明一下，selenium在调用webdriver的时候需要知道driver的实际位置，可以通过添加环境变量的方法和直接在脚本中添加实际路径的方法，这里我用的是直接添加。</p>
+<p>准备好后编写一段代码</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">selenium</span> <span class="kn">import</span> <span class="n">webdriver</span>
+
+<span class="n">edgedriver</span> <span class="o">=</span> <span class="s2">&quot;C:\Program Files (x86)\Microsoft\Edge\Application\msedgedriver.exe&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;webdriver.edge.driver&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">edgedriver</span>
+<span class="n">browser</span> <span class="o">=</span> <span class="n">webdriver</span><span class="o">.</span><span class="n">Edge</span><span class="p">(</span><span class="n">edgedriver</span><span class="p">)</span>
+<span class="n">browser</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://www.bing.com&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+
+<p>然后在编辑器里运行一下看能不能正常打开网页，同理可以把上面的文件路径和变量名和调用模块都替换成你需要使用的浏览器。</p>
+<p>正常执行完了应该看起来是这样的</p>
+<p><img alt="" src="https://i.loli.net/2020/05/17/rWB1wH7Vjgtnl2L.png"></p>
+<p>接下来看一下在driver使用过程中对元素操作的一些关键点吧，当然这里只是基于我编写脚本的时候注意到的一些点进行解析，并不能覆盖到所有使用的案例。</p>
+<h3>DOM树中隐藏元素的操作</h3>
+<p>情况一：元素在页面中不可见但是一直存在在DOM树中，能被查询到</p>
+<p>以常用的视频网站bilibili举例，视频在开始播放了以后，初始的遮罩层就会变得不可见，也就是下面这个，视频开始播放了之后，这个遮罩层就会消失。</p>
+<p><img alt="" src="https://i.loli.net/2020/05/23/IA7OpP3Tkd2qr5t.png"></p>
+<p>但是通过定位元素我们可以发现，消失的原因就是该元素的style被注释成了display: none</p>
+<p><img alt="" src="https://i.loli.net/2020/05/23/IMcJ8wxgp1vfGrU.png"></p>
+<p>这是元素原始的属性，也就是在视频一开始播放的时候，这个遮罩层默认是显示出来的</p>
+<p><img alt="" src="https://i.loli.net/2020/05/23/ueTcIz7G1xlUQ8J.png"></p>
+<p>如果我们在遇到实际元素不可见但是在DOM树中可以被找到的话的话，就能使用driver的exec_script模块执行javascript语句，将已经是display: none的元素修改成display: block或其他可见的属性，这样就能够将元素重新显示在页面中，供下一步操作。</p>
+<p>情况二：元素页面不可见，DOM树也找不到该元素，需要触发特定动作才能显示</p>
+<p>这种情况一般多见于点击按钮弹出菜单的场景中，菜单的属性，如在屏幕中的方位是不存在的。甚至在DOM树中使用document.querySelector方法也找不到该菜单元素的属性。那我们就要操作driver去执行所需的动作，使得元素可见可操作，这里主要使用到的是driver的actionChainsChains方法，执行一连串的动作。下面有一段执行js语句的示例代码。</p>
+<div class="highlight"><pre><span></span><code><span class="n">js</span> <span class="o">=</span> <span class="s2">&quot;document.querySelector(&quot;</span><span class="o">.</span><span class="n">bilibili</span><span class="o">-</span><span class="n">player</span><span class="o">-</span><span class="n">context</span><span class="o">-</span><span class="n">menu</span><span class="o">-</span><span class="n">container</span><span class="o">.</span><span class="n">black</span><span class="o">.</span><span class="n">bilibili</span><span class="o">-</span><span class="n">player</span><span class="o">-</span><span class="n">context</span><span class="o">-</span><span class="n">menu</span><span class="o">-</span><span class="n">origin</span><span class="o">.</span><span class="n">active</span><span class="s2">&quot;)[0].style.display=&#39;block&#39;;&quot;</span>
+<span class="n">driver</span><span class="o">.</span><span class="n">execute_script</span><span class="p">(</span><span class="n">js</span><span class="p">)</span>
+</code></pre></div>
+
+
+<p>但这样的操作往往会返回错误，因为我们希望操作的元素在页面中和document中此刻都是不存在的。我们首先回到浏览器，手动执行一下这个js语句。</p>
+<p>同样以bilibili平台举例，视频的详情菜单是一开始定位不到的，当在浏览器console中尝试获取元素的时候，命令返回的是空值：</p>
+<p><img alt="" src="https://i.loli.net/2020/05/23/yZ9lTibC7QL4H6O.png"></p>
+<p>而当我在页面中点击右键，打开该视频的详情菜单后，该元素可被定位到并返回属性：</p>
+<p>也就是说，这个元素大致遵循这样一个逻辑：元素一开始不可见--进行右键点击--元素被'召唤'出来。那在了解了这个情况后，我们可以调整一下策略，先让driver进行点击动作，再判断元素是否存在，存在的话则进行下一步操作。代码如下：</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span><span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">selenium</span> <span class="kn">import</span> <span class="n">webdriver</span>
+<span class="kn">from</span> <span class="nn">selenium.webdriver</span> <span class="kn">import</span> <span class="n">ActionChains</span>
+
+<span class="n">edgedriver</span> <span class="o">=</span> <span class="s2">&quot;C:\Program Files (x86)\Microsoft\Edge\Application\msedgedriver.exe&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;webdriver.edge.driver&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">edgedriver</span>
+<span class="n">browser</span> <span class="o">=</span> <span class="n">webdriver</span><span class="o">.</span><span class="n">Edge</span><span class="p">(</span><span class="n">edgedriver</span><span class="p">)</span>
+<span class="n">browser</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://www.bilibili.com/video/BV1tp4y1X7Gg?spm_id_from=333.851.b_7265706f7274466972737431.11&quot;</span><span class="p">)</span>
+
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">action1</span> <span class="o">=</span> <span class="n">browser</span><span class="o">.</span><span class="n">find_element_by_css_selector</span><span class="p">(</span>
+    <span class="s2">&quot;.div.bilibili-player-iconfont.bilibili-player-iconfont-pause&quot;</span><span class="p">)</span>
+<span class="n">ActionChains</span><span class="p">(</span><span class="n">browser</span><span class="p">)</span><span class="o">.</span><span class="n">move_to_element</span><span class="p">(</span><span class="n">action1</span><span class="p">)</span><span class="o">.</span><span class="n">context_click</span><span class="p">(</span><span class="n">action1</span><span class="p">)</span><span class="o">.</span><span class="n">perform</span><span class="p">()</span>
+
+<span class="n">js</span> <span class="o">=</span> <span class="s2">&quot;document.querySelector(</span>
+    <span class="s2">&quot;.bilibili-player-context-menu-container.black.bilibili-player-context-menu-origin.active&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">style</span><span class="s2">&quot;</span>
+
+<span class="n">menu</span> <span class="o">=</span> <span class="n">browser</span><span class="o">.</span><span class="n">execute_script</span><span class="p">(</span><span class="n">js</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">menu</span><span class="p">)</span>
+</code></pre></div>
+
+
+<p>上面一段代码大致的意思就是打开网页，定位播放按钮，执行右键点击，输出菜单的style内容。可以注意到，在打开网页后我并没有直接去定位元素，因为有的时候网络信号不佳，可能网页需要很久才能打开，或者是打开了也因为网络慢元素没有加载出来，那这里使用的time.sleep()显得有些累赘，因为即使网络质量好，脚本的执行也会因为wait的等待而效率低下，下面我们将引入的概念是explicit wait。</p>
+<blockquote>
+<p>参考文档：</p>
+<p>https://www.selenium.dev/documentation/en/   ---selenium提供的官方英文文档</p>
+</blockquote></div>
+	</div>
+		<footer>
+		  <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme based on <a href="http://twitter.github.com/bootstrap/">Twitter Bootstrap</a>.</p>
+		  <p>&copy; rex657</p>
+		</footer>
+	  </div>
+
+	</div>
+</body>
+</html>

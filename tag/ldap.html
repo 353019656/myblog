@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Rex657's Blog</title>
+	<meta name="description" content="">
+	<meta name="author" content="rex657">
+
+	<!-- HTML5 shim, for IE6-8 support of HTML elements -->
+	<!--[if lt IE 9]>
+		<script src="https://rex657.github.io/blog/theme/html5.js"></script>
+	<![endif]-->
+
+	<!-- Styles -->
+	<link href="https://rex657.github.io/blog/theme/bootstrap.min.css" rel="stylesheet">
+	<link href="https://rex657.github.io/blog/theme/local.css" rel="stylesheet">
+	<link href="https://rex657.github.io/blog/theme/pygments.css" rel="stylesheet">
+
+	<!-- Feeds -->
+
+
+
+
+</head>
+<body>
+	<div class="topbar">
+	  <div class="topbar-inner">
+		<div class="container-fluid">
+		  <a class="brand" href="https://rex657.github.io/blog/">Rex657's Blog</a>
+			<ul class="nav">
+					<li ><a href="https://rex657.github.io/blog/category/python.html">Python</a></li>
+					<li ><a href="https://rex657.github.io/blog/category/tutorial.html">Tutorial</a></li>
+			</ul>
+			<p class="pull-right"><a href="https://rex657.github.io/blog/archives.html">[archives]</a> <a href="https://rex657.github.io/blog/tags.html">[tags]</a></p>
+		</div>
+	  </div>
+	</div>
+
+	<div class="container-fluid">
+	  <div class="sidebar">
+		<div class="well">
+			<h3>Blogroll</h3>
+			<ul>
+				<li><a href="https://docs.getpelican.com">Pelican Docs</a></li>
+				<li><a href="http://python.org/">Python.org</a></li>
+			</ul>
+			<div class="social">
+			<h3>Social</h3>
+			<ul>
+				<li><a href="#">Wechat: WTF353019656</a></li>
+				<li><a href="https://rex657.giuhub.io">GitHub</a></li>
+			</ul>
+			</div>
+		</div>
+	  </div>
+	  <div class="content">
+<div class="page-header"><h1>Rex657's Blog <small>LDAP</small></h1></div>
+<div class='article'>
+	<h2>How to build your openLDAP server</h2>
+	<div class="well small">Permalink: <a class="more" href="https://rex657.github.io/blog/how-to-build-your-openldap-server.html">2020-07-17 09:40:00+00:00</a>
+by <a class="url fn" href="https://rex657.github.io/blog/author/rex657.html">Rex657 </a>
+ in <a href="https://rex657.github.io/blog/category/tutorial.html">Tutorial</a>
+tags: <a href="https://rex657.github.io/blog/tag/ldap.html">LDAP</a> </div>
+	<div class="summary"><h1>openLDAP安装和用户管理</h1>
+<p>———————————————————————————————————————————————</p>
+<h3>LDAP协议</h3>
+<p>LDAP的全称为Lightweight Directory Access Protocol，一般被称为LDAP。LDAP本身是一种用于限定Client,server间信息交换格式，端口号和认证方式等内容的协议。LDAP的数据交换是基于TCP协议的，抓取的报文显示一次LDAP认证过程和一次https连接并没有太大的不同。这里是一个数据包的解析内容：</p>
+<p><img alt="" src="https://i.loli.net/2020/06/28/YEH1ltWyhbgjzTN.png"></p>
+<p>其中2.61是发起认证请求的client端，2.52是部署了openLDAP服务的LDAP服务器。目前使用较多的基于LDAP协议的应用，一种是Microsoft的AD，Active Directory，另一种就是Linux上的OpenLDAP服务，这里我们要介绍的是openLDAP服务器端的搭建流程。</p>
+<h3>部署前准备</h3>
+<p>部署环境为一台安装了CentOS7.2的服务器。提前给服务器配置好IP地址。</p>
+<p>初始化环境时，安装如下软件包：</p>
+<p><code>yum -y install openldap compat-openldap openldap-clients openldap-servers openldap-servers-sql openldap-devel</code></p>
+<p>安装完成后启动服务</p>
+<p><code>systemcrl start slapd</code></p>
+<p><code>systemctl enable slapd</code></p>
+<p>服务启动后查看ldap-server的默认端口389是否开启</p>
+<p><img alt="" src="https://i.loli.net/2020/06/28/VHPMr2FjfRvdUJn.png"></p>
+<p>一切正常的话，我们就可以进行接下来的服务配置了。</p>
+<h3>服务配置</h3>
+<p>openLDAP安装完成后会在默认安装路径 …</p> <a class="btn primary xsmall" href="https://rex657.github.io/blog/how-to-build-your-openldap-server.html">more…</a>
+	</div>
+</div>	
+
+
+		<footer>
+		  <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme based on <a href="http://twitter.github.com/bootstrap/">Twitter Bootstrap</a>.</p>
+		  <p>&copy; rex657</p>
+		</footer>
+	  </div>
+
+	</div>
+</body>
+</html>

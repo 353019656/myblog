@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Rex657's Blog</title>
+	<meta name="description" content="">
+	<meta name="author" content="rex657">
+
+	<!-- HTML5 shim, for IE6-8 support of HTML elements -->
+	<!--[if lt IE 9]>
+		<script src="https://rex657.github.io/blog/theme/html5.js"></script>
+	<![endif]-->
+
+	<!-- Styles -->
+	<link href="https://rex657.github.io/blog/theme/bootstrap.min.css" rel="stylesheet">
+	<link href="https://rex657.github.io/blog/theme/local.css" rel="stylesheet">
+	<link href="https://rex657.github.io/blog/theme/pygments.css" rel="stylesheet">
+
+	<!-- Feeds -->
+
+
+
+
+</head>
+<body>
+	<div class="topbar">
+	  <div class="topbar-inner">
+		<div class="container-fluid">
+		  <a class="brand" href="https://rex657.github.io/blog/">Rex657's Blog</a>
+			<ul class="nav">
+					<li ><a href="https://rex657.github.io/blog/category/python.html">Python</a></li>
+					<li class="active"><a href="https://rex657.github.io/blog/category/tutorial.html">Tutorial</a></li>
+			</ul>
+			<p class="pull-right"><a href="https://rex657.github.io/blog/archives.html">[archives]</a> <a href="https://rex657.github.io/blog/tags.html">[tags]</a></p>
+		</div>
+	  </div>
+	</div>
+
+	<div class="container-fluid">
+	  <div class="sidebar">
+		<div class="well">
+			<h3>Blogroll</h3>
+			<ul>
+				<li><a href="https://docs.getpelican.com">Pelican Docs</a></li>
+				<li><a href="http://python.org/">Python.org</a></li>
+			</ul>
+			<div class="social">
+			<h3>Social</h3>
+			<ul>
+				<li><a href="#">Wechat: WTF353019656</a></li>
+				<li><a href="https://rex657.giuhub.io">GitHub</a></li>
+			</ul>
+			</div>
+		</div>
+	  </div>
+	  <div class="content">
+	<div class='article'>
+		<div class="page-header"><h1>Use PXE to install Windows NT</h1></div>
+		<div class="well small">Permalink: <a class="more" href="https://rex657.github.io/blog/use-pxe-to-install-windows-nt.html">2020-07-17 09:41:00+00:00</a>
+by <a class="url fn" href="https://rex657.github.io/blog/author/rex657.html">Rex657 </a>
+ in <a href="https://rex657.github.io/blog/category/tutorial.html">Tutorial</a>
+tags: <a href="https://rex657.github.io/blog/tag/pxe.html">PXE</a> <a href="https://rex657.github.io/blog/tag/win10.html">WIN10</a> </div>
+		<div><h1>使用PXE server引导安装Win10</h1>
+<p>——————————————————————————————————————————————</p>
+<h2>思路介绍</h2>
+<p>之前研究过使用pxe技术进行自动化的linux发行版（主要是CentOS7系列）的安装，因为平时也会使用Win10，所以额外看了一下如何使用pxe引导安装win10。这里采用的方法颇有点曲线救国的意思，即先使用pxe引导WinPE，之后从WinPE挂载镜像或使用网络地址共享的安装文件启动安装程序，核心还是使用了WinPE的便捷引导。</p>
+<p>我也尝试过直接使用pxe引导Win10的内核文件，但这种方式无法在系统安装程序开始后识别硬盘，估计是因为缺少了install.wim的驱动。</p>
+<h2>准备步骤</h2>
+<p>准备好对应版本的WinPE，如果你需要安装64位的系统，就需要准备64位的WinPE镜像，反之32位对应32位的WinPE，我则是两种都准备好了。</p>
+<p>WinPE可以通过Windows ADK生成，Microsoft的文档库对这个步骤有较为详细的说明，我这里就不班门弄斧了，请移步下方链接查看制作WinPE.iso的步骤。</p>
+<blockquote>
+<p>https://docs.microsoft.com/zh-cn/windows-hardware/manufacture/desktop/download-winpe--windows-pe  下载 WinPE (Windows PE)</p>
+<p>https://docs.microsoft.com/zh-cn/windows-hardware/manufacture/desktop/winpe-create-usb-bootable-drive  创建可启动 WinPE 介质</p>
+</blockquote>
+<p>按照一系列的详细指导，最后应该可以得到两个非常基础的WinPE镜像包。</p>
+<p><img alt="image-20200716172440276" src="https://i.loli.net/2020/07/16/sxEAWGqKjZNUf3P.png"></p>
+<p><strong>衷心请求不要下载什么老毛桃ISO，西红柿ISO，除非你想与2345为伴</strong></p>
+<p>结合之前使用tinypxesrv的经验，我们一样需要把iso的内容复制到files目录下，并分别以WinPE64和WinPE32命名</p>
+<p><img alt="image-20200716172508556" src="https://i.loli.net/2020/07/16/Z1CAomc96FkMtXO.png"></p>
+<p>PE的内容里我们需要的部分（此处暂不讨论UEFI引导的情况）就是bootmgr文件，boot目录下的BCD和boot.sdi以及封装的系统内核boot.wim</p>
+<p>现在我们来编写pxe的启动引导菜单</p>
+<div class="highlight"><pre><span></span><code>#!ipxe
+set menu-timeout 5000
+set submenu-timeout <span class="cp">${</span><span class="n">menu</span><span class="o">-</span><span class="n">timeout</span><span class="cp">}</span>
+set boot-url http://<span class="cp">${</span><span class="nb">next</span><span class="o">-</span><span class="n">server</span><span class="cp">}</span>
+
+:start
+menu Welcome to iPXE&#39;s Boot Menu
+item
+item --gap -- ------------------------- Utilities ------------------------------
+item WinPE64 Install WinPE64
+item WinPE32 Install WinPE32
+item Exit
+choose --default exit target <span class="err">&amp;&amp;</span> goto <span class="cp">${</span><span class="n">target</span><span class="cp">}</span>
+
+:WinPE64
+kernel <span class="cp">${</span><span class="n">boot</span><span class="o">-</span><span class="n">url</span><span class="cp">}</span>/wimboot pause
+initrd <span class="cp">${</span><span class="n">boot</span><span class="o">-</span><span class="n">url</span><span class="cp">}</span>/WinPE64/bootmgr          bootmgr
+initrd <span class="cp">${</span><span class="n">boot</span><span class="o">-</span><span class="n">url</span><span class="cp">}</span>/WinPE64/Boot/BCD         BCD
+initrd <span class="cp">${</span><span class="n">boot</span><span class="o">-</span><span class="n">url</span><span class="cp">}</span>/WinPE64/Boot/boot.sdi    boot.sdi
+initrd <span class="cp">${</span><span class="n">boot</span><span class="o">-</span><span class="n">url</span><span class="cp">}</span>/WinPE64/sources/boot.wim boot.wim
+boot
+
+:WinPE32
+kernel <span class="cp">${</span><span class="n">boot</span><span class="o">-</span><span class="n">url</span><span class="cp">}</span>/wimboot pause
+initrd <span class="cp">${</span><span class="n">boot</span><span class="o">-</span><span class="n">url</span><span class="cp">}</span>/WinPE32/bootmgr          bootmgr
+initrd <span class="cp">${</span><span class="n">boot</span><span class="o">-</span><span class="n">url</span><span class="cp">}</span>/WinPE32/Boot/BCD         BCD
+initrd <span class="cp">${</span><span class="n">boot</span><span class="o">-</span><span class="n">url</span><span class="cp">}</span>/WinPE32/Booy/boot.sdi    boot.sdi
+initrd <span class="cp">${</span><span class="n">boot</span><span class="o">-</span><span class="n">url</span><span class="cp">}</span>/WinPE32/Sources/boot.sdi boot.wim
+boot
+
+:exit
+exit
+</code></pre></div>
+
+
+<p>这里是一个非常简单的菜单例子，提供了两个选项，启动WinPE64位和WinPE32位。</p>
+<p>另外需要把Win10镜像解压的文件同时复制一份到files目录下，并将整个files目录共享出去，方便目标主机安装时取得文件。</p>
+<p>共享文件夹的配置请自行搜索。</p>
+<p>或参考下列指引：</p>
+<div class="highlight"><pre><span></span><code><span class="n">Windows</span> <span class="mi">7</span><span class="o">/</span><span class="mi">8</span><span class="o">/</span><span class="mi">8</span><span class="p">.</span><span class="mi">1</span>
+<span class="n">Tested</span> <span class="k">in</span> <span class="n">Windows</span> <span class="mi">7</span> <span class="o">-</span> <span class="n">should</span> <span class="n">apply</span> <span class="k">to</span> <span class="n">Windows</span> <span class="mi">8</span><span class="o">/</span><span class="mi">8</span><span class="p">.</span><span class="mi">1</span><span class="p">.</span>
+
+<span class="k">To</span> <span class="k">Share</span> <span class="n">the</span> <span class="k">C</span><span class="p">:</span><span class="err">\</span><span class="n">pxesrv</span><span class="err">\</span><span class="n">files</span> <span class="n">directory</span> <span class="k">as</span> <span class="n">sharename</span> <span class="n">files</span> <span class="o">-</span>
+
+<span class="k">Open</span> <span class="n">Explorer</span> <span class="o">&gt;</span> <span class="k">right</span> <span class="n">click</span> <span class="k">on</span> <span class="k">C</span><span class="p">:</span><span class="err">\</span><span class="n">pxesrv</span><span class="err">\</span><span class="n">files</span> <span class="o">&gt;</span> <span class="k">select</span> <span class="n">Properties</span> <span class="o">&gt;</span> <span class="k">select</span> <span class="n">the</span> <span class="n">Sharing</span> <span class="n">tab</span> <span class="o">&gt;</span> <span class="n">click</span> <span class="k">on</span> <span class="n">Advanced</span> <span class="n">Sharing</span><span class="p">...</span>
+<span class="k">In</span> <span class="n">the</span> <span class="n">Advanced</span> <span class="n">Sharing</span> <span class="n">window</span> <span class="o">&gt;</span> <span class="n">tick</span> <span class="n">the</span> <span class="k">Share</span> <span class="n">this</span> <span class="n">folder</span> <span class="n">box</span> <span class="o">&gt;</span> <span class="n">click</span> <span class="k">on</span> <span class="n">Permissions</span> <span class="o">&gt;</span> <span class="n">click</span> <span class="k">on</span> <span class="k">Add</span><span class="p">...</span> <span class="o">&gt;</span> <span class="k">type</span> <span class="n">Guest</span> <span class="p">(</span><span class="k">in</span> <span class="n">the</span> <span class="n">Enter</span> <span class="n">the</span> <span class="k">object</span> <span class="k">names</span> <span class="k">to</span> <span class="k">select</span> <span class="p">(</span><span class="n">examples</span><span class="p">):</span> <span class="n">field</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">click</span> <span class="k">on</span> <span class="n">OK</span><span class="p">.</span>
+<span class="k">In</span> <span class="n">the</span> <span class="n">Permissions</span> <span class="k">for</span> <span class="n">files</span> <span class="n">window</span> <span class="o">&gt;</span> <span class="k">select</span> <span class="n">Guest</span> <span class="p">(</span><span class="k">in</span> <span class="n">the</span> <span class="k">Group</span> <span class="k">or</span> <span class="k">user</span> <span class="k">names</span><span class="p">:</span> <span class="n">field</span><span class="p">)</span> <span class="k">and</span> <span class="k">check</span> <span class="n">that</span> <span class="k">Read</span> <span class="k">is</span> <span class="n">allowed</span> <span class="k">in</span> <span class="n">the</span> <span class="n">Permissions</span> <span class="k">for</span> <span class="n">Guest</span> <span class="n">section</span> <span class="o">&gt;</span> <span class="n">click</span> <span class="k">on</span> <span class="n">Apply</span> <span class="o">&gt;</span> <span class="n">click</span> <span class="k">on</span> <span class="n">OK</span>
+<span class="n">You</span> <span class="n">should</span> <span class="k">return</span> <span class="k">to</span> <span class="n">the</span> <span class="n">files</span> <span class="n">Properties</span> <span class="n">window</span><span class="p">.</span> <span class="n">Now</span> <span class="k">select</span> <span class="n">the</span> <span class="k">Security</span> <span class="n">tab</span> <span class="o">&gt;</span> <span class="n">Edit</span><span class="p">...</span> <span class="o">&gt;</span> <span class="k">Add</span><span class="p">...</span>
+<span class="n">The</span> <span class="n">preceding</span> <span class="n">step</span> <span class="n">should</span> <span class="k">open</span> <span class="n">the</span> <span class="k">Select</span> <span class="n">Users</span> <span class="k">or</span> <span class="n">Groups</span> <span class="n">window</span> <span class="o">&gt;</span> <span class="k">type</span> <span class="n">Guest</span> <span class="p">(</span><span class="k">in</span> <span class="n">the</span> <span class="n">Enter</span> <span class="n">the</span> <span class="k">object</span> <span class="k">names</span> <span class="k">to</span> <span class="k">select</span> <span class="p">(</span><span class="n">examples</span><span class="p">):</span> <span class="n">field</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">click</span> <span class="k">on</span> <span class="n">OK</span><span class="p">.</span>
+<span class="k">In</span> <span class="n">the</span> <span class="n">Permissions</span> <span class="k">for</span> <span class="n">files</span> <span class="n">window</span> <span class="o">&gt;</span> <span class="k">select</span> <span class="n">Guest</span> <span class="p">(</span><span class="k">in</span> <span class="n">the</span> <span class="k">Group</span> <span class="k">or</span> <span class="k">user</span> <span class="k">names</span><span class="p">:</span> <span class="n">field</span><span class="p">)</span> <span class="k">and</span> <span class="k">check</span> <span class="n">that</span> <span class="n">the</span> <span class="n">following</span> <span class="n">Permissions</span> <span class="k">for</span> <span class="n">Guest</span> <span class="k">are</span> <span class="n">allowed</span> <span class="o">-</span>
+<span class="k">Read</span> <span class="o">&amp;</span> <span class="k">execute</span>
+<span class="n">List</span> <span class="n">folder</span> <span class="n">contents</span>
+<span class="k">Read</span>
+<span class="n">click</span> <span class="k">on</span> <span class="n">Apply</span> <span class="o">&gt;</span> <span class="n">click</span> <span class="k">on</span> <span class="n">OK</span><span class="p">.</span>
+<span class="k">On</span> <span class="n">returning</span> <span class="k">to</span> <span class="n">the</span> <span class="n">files</span> <span class="n">Properties</span> <span class="n">window</span> <span class="o">&gt;</span> <span class="n">click</span> <span class="k">on</span> <span class="k">Close</span><span class="p">.</span>
+<span class="n">Now</span> <span class="k">open</span> <span class="n">the</span> <span class="n">Network</span> <span class="k">and</span> <span class="n">Sharing</span> <span class="n">Centre</span> <span class="p">(</span><span class="n">Control</span> <span class="n">Panel</span> <span class="o">&gt;</span> <span class="k">All</span> <span class="n">Control</span> <span class="n">Panel</span> <span class="n">Items</span> <span class="o">&gt;</span> <span class="n">Network</span> <span class="k">and</span> <span class="n">Sharing</span> <span class="n">Centre</span><span class="p">)</span> <span class="o">&gt;</span> <span class="k">select</span> <span class="n">Change</span> <span class="n">advanced</span> <span class="n">sharing</span> <span class="n">settings</span> <span class="o">&gt;</span> <span class="k">select</span> <span class="n">Turn</span> <span class="k">off</span> <span class="n">password</span> <span class="n">protected</span> <span class="n">sharing</span> <span class="o">&gt;</span> <span class="n">click</span> <span class="k">on</span> <span class="n">Save</span> <span class="n">changes</span><span class="p">.</span>
+</code></pre></div>
+
+
+<h2>开始引导</h2>
+<p>准备好上述配置以后，我们就可以启动pxe server来装载菜单文件，并使用虚拟机来引导启动了。引导菜单看起来会是这样：</p>
+<p><strong>提示一下：如果使用虚拟机进行测试，则建立虚拟机时系统平台需要指定为windows系统，否则引导成功后系统会卡死在wpeinit程序上，无法完成PE的初始化。另外为了能顺利完成后面win 10的安装，虚拟机磁盘需要是预先分配的完整空间，不能选择将磁盘动态划分为多个文件，否则Win10将识别不到安装磁盘。</strong></p>
+<p><img alt="image-20200716173348412" src="https://i.loli.net/2020/07/16/7US2KMZtG5wQNms.png"></p>
+<p>因为设置了wimboot的pause（参见上方的kernel XX pause）所以内核在加载完文件后会提示press any key to continue，这里按任意建继续启动。</p>
+<p><img alt="image-20200716174037507" src="https://i.loli.net/2020/07/16/3jUTL7btOhc4NDp.png"></p>
+<p>因为pxesrv自带的内核文件wimboot版本比较老，所以这里你能看到经典的windows滚动条。</p>
+<p><img alt="image-20200716174105425" src="https://i.loli.net/2020/07/16/ao32WR5StpXNJuY.png"></p>
+<p>进入系统以后，因为WinPE未设置加载其他程序，所以这里只会显示简单的cmd命令行窗口。等待系统完成wpeinit后我们就可以操作了。首先确认系统识别硬盘成功：</p>
+<p><img alt="image-20200716174333332" src="https://i.loli.net/2020/07/16/6MZBmX9u8swYecK.png"></p>
+<p>我这里给测试虚拟机分配了60G的空间，这里也显示为识别到了60G的硬盘。</p>
+<p>退出diskpart后，执行命令来初始化网络配置</p>
+<p><code>wpeutil InitializeNetwork</code></p>
+<p>之后执行网络挂载，将pxeserver共享出来的win10安装文件目录挂载到本地的Z盘符中</p>
+<p><code>net use Z: \\192.168.101.1\files\Win10 /u:pxe</code> </p>
+<p>因为之前配置共享文件夹时是允许所有人访问的，而且访问不需要密码，所以这里使用任意用户名即可完成登录，密码因为没有要求，可以在系统提示输入密码的时候直接按Enter执行。看到命令执行成功即可。</p>
+<p><img alt="image-20200716174901214" src="https://i.loli.net/2020/07/16/xY6XcTdRD3MGiBr.png"></p>
+<p>之后执行</p>
+<p><code>Z:\setup.exe</code></p>
+<p>即可启动windows 10的安装，并进入安装引导界面，之后的安装流程和使用光盘介质等安装是一样的。</p>
+<p><img alt="image-20200716175102120" src="https://i.loli.net/2020/07/16/cxrO1k3UQESAwyF.png"></p>
+<p>至此我们完成了使用pxe引导WinPE并进行Win10安装的流程。</p>
+<h2>参考资料</h2>
+<blockquote>
+<p>http://mistyrebootfiles.altervista.org/documents/TinyPXEServer/files/ris.htm  Remote Installation Services (RIS)</p>
+<p>http://mistyrebootfiles.altervista.org/documents/TinyPXEServer/files/win6x.htm  Installing Windows NT 6.*</p>
+<p>Loads of Microsoft Docs</p>
+</blockquote></div>
+	</div>
+		<footer>
+		  <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme based on <a href="http://twitter.github.com/bootstrap/">Twitter Bootstrap</a>.</p>
+		  <p>&copy; rex657</p>
+		</footer>
+	  </div>
+
+	</div>
+</body>
+</html>

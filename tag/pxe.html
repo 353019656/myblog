@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Rex657's Blog</title>
+	<meta name="description" content="">
+	<meta name="author" content="rex657">
+
+	<!-- HTML5 shim, for IE6-8 support of HTML elements -->
+	<!--[if lt IE 9]>
+		<script src="https://rex657.github.io/blog/theme/html5.js"></script>
+	<![endif]-->
+
+	<!-- Styles -->
+	<link href="https://rex657.github.io/blog/theme/bootstrap.min.css" rel="stylesheet">
+	<link href="https://rex657.github.io/blog/theme/local.css" rel="stylesheet">
+	<link href="https://rex657.github.io/blog/theme/pygments.css" rel="stylesheet">
+
+	<!-- Feeds -->
+
+
+
+
+</head>
+<body>
+	<div class="topbar">
+	  <div class="topbar-inner">
+		<div class="container-fluid">
+		  <a class="brand" href="https://rex657.github.io/blog/">Rex657's Blog</a>
+			<ul class="nav">
+					<li ><a href="https://rex657.github.io/blog/category/python.html">Python</a></li>
+					<li ><a href="https://rex657.github.io/blog/category/tutorial.html">Tutorial</a></li>
+			</ul>
+			<p class="pull-right"><a href="https://rex657.github.io/blog/archives.html">[archives]</a> <a href="https://rex657.github.io/blog/tags.html">[tags]</a></p>
+		</div>
+	  </div>
+	</div>
+
+	<div class="container-fluid">
+	  <div class="sidebar">
+		<div class="well">
+			<h3>Blogroll</h3>
+			<ul>
+				<li><a href="https://docs.getpelican.com">Pelican Docs</a></li>
+				<li><a href="http://python.org/">Python.org</a></li>
+			</ul>
+			<div class="social">
+			<h3>Social</h3>
+			<ul>
+				<li><a href="#">Wechat: WTF353019656</a></li>
+				<li><a href="https://rex657.giuhub.io">GitHub</a></li>
+			</ul>
+			</div>
+		</div>
+	  </div>
+	  <div class="content">
+<div class="page-header"><h1>Rex657's Blog <small>PXE</small></h1></div>
+<div class='article'>
+	<h2>Use PXE to install Windows NT</h2>
+	<div class="well small">Permalink: <a class="more" href="https://rex657.github.io/blog/use-pxe-to-install-windows-nt.html">2020-07-17 09:41:00+00:00</a>
+by <a class="url fn" href="https://rex657.github.io/blog/author/rex657.html">Rex657 </a>
+ in <a href="https://rex657.github.io/blog/category/tutorial.html">Tutorial</a>
+tags: <a href="https://rex657.github.io/blog/tag/pxe.html">PXE</a> <a href="https://rex657.github.io/blog/tag/win10.html">WIN10</a> </div>
+	<div class="summary"><h1>使用PXE server引导安装Win10</h1>
+<p>——————————————————————————————————————————————</p>
+<h2>思路介绍</h2>
+<p>之前研究过使用pxe技术进行自动化的linux发行版（主要是CentOS7系列）的安装，因为平时也会使用Win10，所以额外看了一下如何使用pxe引导安装win10。这里采用的方法颇有点曲线救国的意思，即先使用pxe引导WinPE，之后从WinPE挂载镜像或使用网络地址共享的安装文件启动安装程序，核心还是使用了WinPE的便捷引导。</p>
+<p>我也尝试过直接使用pxe引导Win10的内核文件，但这种方式无法在系统安装程序开始后识别硬盘，估计是因为缺少了install.wim的驱动。</p>
+<h2>准备步骤</h2>
+<p>准备好对应版本的WinPE，如果你需要安装64位的系统，就需要准备64位的WinPE镜像，反之32位对应32位的WinPE，我则是两种都准备好了。</p>
+<p>WinPE可以通过Windows ADK生成，Microsoft的文档库对这个步骤有较为详细的说明，我这里就不班门弄斧了，请移步下方链接查看制作WinPE.iso的步骤。</p>
+<blockquote>
+<p>https://docs.microsoft.com/zh-cn/windows-hardware/manufacture/desktop/download-winpe--windows-pe  下载 WinPE (Windows PE)</p>
+<p>https://docs.microsoft.com/zh-cn/windows-hardware/manufacture/desktop/winpe-create-usb-bootable-drive …</p></blockquote> <a class="btn primary xsmall" href="https://rex657.github.io/blog/use-pxe-to-install-windows-nt.html">more…</a>
+	</div>
+</div>	
+
+
+		<footer>
+		  <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme based on <a href="http://twitter.github.com/bootstrap/">Twitter Bootstrap</a>.</p>
+		  <p>&copy; rex657</p>
+		</footer>
+	  </div>
+
+	</div>
+</body>
+</html>
